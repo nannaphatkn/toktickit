@@ -1,72 +1,93 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react';
+
+import './App.css';
 
 interface Category {
   id: string;
   name: string;
-  description: string | null;
 }
 
 function App() {
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false);
+  const [systemStatus, setSystemStatus] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch('http://localhost:5001/api/categories')
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories(data)
-        setLoading(false)
-      })
-      .catch((err) => {
-        console.error('Failed to fetch categories', err)
-        setLoading(false)
-      })
-  }, [])
+  const checkSystem = async () => {
+    setLoading(true);
+    setError(null);
+    setSystemStatus(null);
+    setCategories([]);
+
+    try {
+      const [healthRes, categoriesRes] = await Promise.all([
+        fetch('http://localhost:5001/api/health'),
+        fetch('http://localhost:5001/api/categories')
+      ]);
+
+      if (!healthRes.ok || !categoriesRes.ok) {
+        throw new Error('Failed to fetch from API');
+      }
+
+      const healthData = await healthRes.json();
+      const categoriesData = await categoriesRes.json();
+
+      setSystemStatus(healthData.status === 'ok' ? 'Online' : 'Offline');
+      setCategories(categoriesData);
+    } catch (err) {
+      console.error(err);
+      setSystemStatus('Offline');
+      setError('Unable to connect to TokTickIT API');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container mt-5">
-      <header className="text-center mb-5">
-        <div className="hero mb-4">
-          <img src={heroImg} className="base" width="170" height="179" alt="Hero" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <h1>TokTickIT Service Desk</h1>
-        <p className="lead">Submit and track your IT requests</p>
-      </header>
-
-      <section className="categories-section">
-        <h2 className="mb-4 text-center">IT Request Categories</h2>
+      <div className="card p-4 shadow-sm" style={{ border: '1px solid black', borderRadius: '0' }}>
+        <h4 className="mb-4">TokTickIT IT Service Desk</h4>
         
-        {loading ? (
-          <div className="text-center">
-            <p>Loading categories...</p>
-          </div>
-        ) : (
-          <div className="row g-4 justify-content-center">
-            {categories.map((category) => (
-              <div key={category.id} className="col-md-6 col-lg-4">
-                <div className="card h-100 shadow-sm border-0">
-                  <div className="card-body">
-                    <h5 className="card-title text-primary">{category.name}</h5>
-                    <p className="card-text text-muted">
-                      {category.description || 'No description provided'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div className="mb-4">
+          <button 
+            className="btn btn-outline-dark" 
+            style={{ borderRadius: '0', padding: '0.375rem 1rem' }}
+            onClick={checkSystem}
+            disabled={loading}
+          >
+            [ Check System ]
+          </button>
+        </div>
+
+        {loading && (
+          <div className="mt-3">
+            <p>⏳ "loading"...</p>
           </div>
         )}
-      </section>
+
+        {systemStatus && (
+          <div className="mt-4" style={{ fontFamily: 'monospace' }}>
+            <p className="mb-3">System Status: {systemStatus}</p>
+            
+            {error && (
+              <p className="text-danger">{error}</p>
+            )}
+
+            {categories.length > 0 && (
+              <div>
+                <p className="mb-2">Supported Request Categories</p>
+                <ul className="list-unstyled mb-0" style={{ paddingLeft: '1rem' }}>
+                  {categories.map((category, index) => (
+                    <li key={category.id}>{index + 1}. {category.name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
-  )
+  );
 }
 
-export default App
-
-export default App
+export default App;
