@@ -1,5 +1,7 @@
 import { useState } from 'react';
-
+import reactLogo from './assets/react.svg';
+import viteLogo from './assets/vite.svg';
+import heroImg from './assets/hero.png';
 import './App.css';
 
 interface Category {
@@ -44,50 +46,54 @@ function App() {
   };
 
   return (
-    <div className="container mt-5">
-      <div className="card p-4 shadow-sm" style={{ border: '1px solid black', borderRadius: '0' }}>
-        <h4 className="mb-4">TokTickIT IT Service Desk</h4>
-        
-        <div className="mb-4">
-          <button 
-            className="btn btn-outline-dark" 
-            style={{ borderRadius: '0', padding: '0.375rem 1rem' }}
-            onClick={checkSystem}
-            disabled={loading}
-          >
-            [ Check System ]
-          </button>
+    <>
+      <section id="center">
+        <div className="hero">
+          <img src={heroImg} className="base" width="170" height="179" alt="Hero" />
+          <img src={reactLogo} className="framework" alt="React logo" />
+          <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
-
-        {loading && (
-          <div className="mt-3">
-            <p>⏳ "loading"...</p>
-          </div>
-        )}
+        <div>
+          <h1>TokTickIT IT Service Desk</h1>
+        </div>
+        
+        <button
+          type="button"
+          className="counter"
+          onClick={checkSystem}
+          disabled={loading}
+          style={{ marginBottom: '20px' }}
+        >
+          {loading ? '⏳ "loading"...' : '[ Check System ]'}
+        </button>
 
         {systemStatus && (
-          <div className="mt-4" style={{ fontFamily: 'monospace' }}>
-            <p className="mb-3">System Status: {systemStatus}</p>
+          <div style={{ textAlign: 'left', display: 'inline-block', minWidth: '300px', backgroundColor: '#f9f9f9', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #ddd' }}>
+            <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>System Status: {systemStatus}</p>
             
             {error && (
-              <p className="text-danger">{error}</p>
+              <p style={{ color: '#d32f2f', margin: '0' }}>{error}</p>
             )}
 
             {categories.length > 0 && (
-              <div>
-                <p className="mb-2">Supported Request Categories</p>
-                <ul className="list-unstyled mb-0" style={{ paddingLeft: '1rem' }}>
+              <>
+                <p style={{ margin: '15px 0 10px 0', fontWeight: 'bold' }}>Supported Request Categories</p>
+                <ul style={{ margin: 0, paddingLeft: '20px' }}>
                   {categories.map((category, index) => (
-                    <li key={category.id}>{index + 1}. {category.name}</li>
+                    <li key={category.id} style={{ marginBottom: '5px' }}>{index + 1}. {category.name}</li>
                   ))}
                 </ul>
-              </div>
+              </>
             )}
           </div>
         )}
-      </div>
-    </div>
+      </section>
+
+      <div className="ticks"></div>
+      <section id="spacer"></section>
+    </>
   );
 }
 
 export default App;
+
