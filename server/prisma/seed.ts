@@ -3,11 +3,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const categories = [
+  { name: 'Account and Access', description: 'Password resets, access requests' },
   { name: 'Hardware', description: 'Issues with laptops, monitors, peripherals' },
-  { name: 'Software', description: 'Installation, licensing, application crashes' },
   { name: 'Network', description: 'Wi-Fi, VPN, internet connectivity' },
-  { name: 'Account', description: 'Password resets, access requests' },
-  { name: 'Other', description: 'General inquiries and other issues' },
+  { name: 'Software', description: 'Installation, licensing, application crashes' },
 ];
 
 async function main() {
