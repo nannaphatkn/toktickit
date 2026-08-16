@@ -8,6 +8,7 @@ describe('API Health Check', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('status', 'ok');
+    expect(response.body).toHaveProperty('service', 'TokTickIT API');
     expect(response.body).toHaveProperty('timestamp');
     
     // Verify timestamp is a valid ISO string date

@@ -20,13 +20,14 @@ app.get('/', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
+    service: 'TokTickIT API',
     timestamp: new Date().toISOString()
   });
 });
 
 app.get('/api/categories', async (req, res) => {
   try {
-    const categories = await prisma.category.findMany();
+    const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
     res.json(categories);
   } catch (error) {
     console.error('Error fetching categories:', error);
