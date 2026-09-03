@@ -1,58 +1,46 @@
-# Lab 2 Test Plan and Results
+# Lab 2 Phase 1 – Test Plan (`tests.md`)
 
-## 1. Test Strategy
-The testing strategy for Lab 2 follows a Test-Driven Development (TDD) approach, focusing on multiple layers to ensure robust functionality:
-- **Unit Tests:** Verify individual functions (e.g., ticket number generation format).
-- **API (Integration) Tests:** Verify REST endpoints, database interactions, request validation, and error handling using Supertest.
-- **UI Component Tests:** Verify React component rendering, form states, input validation, and user interactions using React Testing Library.
-- **E2E Tests:** Verify complete end-user workflows (e.g., creating a ticket and seeing it in the list) using Playwright.
+## 1️⃣ Test Strategy Overview
+- **Unit Tests** – Isolate each service / Prisma model function (e.g., `createTicket`, `listMyTickets`). Use **Vitest** with mocking of Prisma client.
+- **API Integration Tests** – Use **Supertest** against the Express server. Verify request validation, response shape, status codes and soft‑delete behaviour.
+- **UI Component Tests** – Use **React Testing Library** + **Vitest** for individual components (Requester selector, Ticket form, Ticket list, Ticket detail).
+- **End‑to‑End (E2E) Tests** – Use **Playwright** (or Cypress) to exercise the full flow: select requester → create ticket with attachments → view ticket list → soft‑remove attachment → verify access control.
 
-## 2. Planned Tests
+## 2️⃣ Test‑to‑Acceptance‑Criteria Traceability Matrix
+| Test ID | Acceptance Criteria | Description | Expected Result |
+|--------|----------------------|-------------|-----------------|
+| **T‑01** | AC‑01 | POST `/api/tickets` with valid payload & 2 attachments | Returns **201** and `ticketNumber`; ticket persisted with 2 active attachments |
+| **T‑02** | AC‑02 | Open Create Ticket page without selecting a requester | UI redirects to **Requester Selection** screen |
+| **T‑03** | AC‑03 | GET `/api/tickets/:id` as Requester B for a ticket owned by Requester A | Returns **403 Forbidden** (or **404**) – ticket data not accessible |
+| **T‑04** | AC‑04 | Upload attachment > 5 MB via form | UI shows validation error **"File size exceeds 5 MB"**; request rejected with **400** |
+| **T‑05** | AC‑05 | GET `/api/tickets?page=1&size=10` for Requester A | Returns ≤ 10 tickets owned by A, sorted newest‑first |
+| **T‑06** | AC‑06 | Click **Remove** on an active attachment in Ticket Detail | Attachment record `isRemoved=true`; subsequent download returns **404** |
+| **T‑07** | AC‑07 | Search My Tickets with term matching ticket summary | API returns only tickets whose `summary` or `ticketNumber` contains the term |
+| **T‑08** | BR‑06 (file‑type validation) | Try to upload a `.exe` file | UI shows **"Unsupported file type"**; API returns **415** |
+| **T‑09** | UI – Loading / Empty states | Navigate to My Tickets when none exist | UI displays friendly empty‑state message with illustration |
+| **T‑10** | Accessibility – Keyboard navigation | Tab through Create Ticket form fields | Focus order follows visual order, all controls reachable via keyboard |
 
-| Test ID | Type | Requirement / AC | What It Tests | Expected Result | Automated Test File | Final |
-|---|---|---|---|---|---|---|
-| UNIT-01 | Unit | BR-01 | Ticket Number Generator | Returns string in format `TKT-YYYY-XXXXXX` | `server/src/utils/ticket-number.test.ts` | Pass |
-| API-01 | API | AC-01, FR-03 | Create valid ticket | 201; one saved Ticket; number returned | `server/tests/lab-02/create-ticket.api.test.ts` | Pass |
-| API-02 | API | AC-04, BR-06 | Create ticket with >5MB file | 400 Bad Request; validation error message | `server/tests/lab-02/create-ticket.api.test.ts` | Pass |
-| API-03 | API | AC-03, FR-10 | Get ticket not owned | 403 or 404; no data returned | `server/tests/lab-02/ticket-detail.api.test.ts` | Pass |
-| API-04 | API | AC-05, FR-05 | Get paginated tickets | 200; list of tickets matching owner | `server/tests/lab-02/my-tickets.api.test.ts` | Pass |
-| API-05 | API | AC-06, FR-09 | Soft-remove attachment | 200; `isRemoved` true; file inaccessible | `server/tests/lab-02/attachments.api.test.ts` | Pass |
-| UI-01 | UI | AC-01, FR-03 | Submit valid form | Busy state on button; then success confirmation | `client/src/.../CreateTicket.test.tsx` | Pass |
-| UI-02 | UI | AC-02, FR-01 | Access app without Requester | Redirect/show Requester Selection screen | `client/src/.../App.test.tsx` | Pass |
-| UI-03 | UI | BR-04, FR-03 | Submit without Summary | Field message; API not called | `client/src/.../CreateTicket.test.tsx` | Pass |
-| UI-04 | UI | AC-07, FR-06 | Search tickets by Summary | Table updates to show only matching tickets | `client/src/.../MyTickets.test.tsx` | Pass |
-| UI-05 | UI | AC-06, FR-09 | Click remove on attachment | Confirmation dialog; then visual indication of removal | `client/src/.../RequesterTicketDetail.test.tsx` | Pass |
-| E2E-01 | E2E | AC-01, AC-05 | Complete submission flow | Confirmation shows official number, appears in My Tickets | `e2e/lab-02/requester-ticket-flow.spec.ts` | Pass |
-| E2E-02 | E2E | FR-02, FR-05 | Switch Requester | My Tickets updates to show the new Requester's tickets | `e2e/lab-02/requester-switch.spec.ts` | Pass |
+## 3️⃣ Planned Test Files
+| File | Purpose |
+|------|---------|
+| `tests/unit/ticket.service.test.ts` | Unit tests for Ticket service (creation, validation, soft‑delete) |
+| `tests/api/ticket.routes.test.ts` | API integration tests for all ticket endpoints |
+| `tests/ui/RequesterSelect.test.tsx` | Component test for Requester selector UI |
+| `tests/ui/CreateTicketForm.test.tsx` | Form validation, attachment handling, error messages |
+| `e2e/create‑ticket.spec.ts` | Full flow from Requester selection to ticket creation and verification |
 
-## 3. Acceptance-Criterion Traceability
+## 4️⃣ Commands to Run Tests
+```bash
+# Unit + API tests (Vitest)
+npm run test
 
-| AC ID | Description | Covered by Tests |
-|---|---|---|
-| AC-01 | Valid ticket submission saves data and shows number | API-01, UI-01, E2E-01 |
-| AC-02 | No Requester selected shows Selection screen | UI-02 |
-| AC-03 | Accessing other's ticket is rejected | API-03 |
-| AC-04 | >5MB file rejected | API-02 |
-| AC-05 | My Tickets loads paginated owned tickets | API-04, E2E-01 |
-| AC-06 | Soft-remove attachment works and blocks download | API-05, UI-05 |
-| AC-07 | Search My Tickets by summary | UI-04 |
+# UI component tests (Vitest with React Testing Library)
+npm run test:ui
 
-## 4. Responsive and Visual Checklist
+# E2E tests (Playwright)
+npm run test:e2e
+```
 
-- [ ] **Desktop (≥ 992px):** Multi-column form layouts, full table view for My Tickets.
-- [ ] **Tablet (768-991px):** Two-column layouts where practical.
-- [ ] **Mobile (< 768px):** Fields stack vertically, buttons are touch-friendly, list becomes card view, no horizontal scrolling.
-- [ ] **Zen Green Theme:** Colors match `ui-spec.md` (Primary green `#006B3C`, Secondary `#0B7A46`, etc.).
-- [ ] **Accessibility:** Focus indicators visible, labels on all inputs, appropriate aria-attributes for dynamic states.
+---
 
-## 5. Test Commands
-- **Unit & API Tests:** `npm run test:api` (or `npm run test` in server directory)
-- **UI Tests:** `npm run test:ui` (or `npm run test` in client directory)
-- **E2E Tests:** `npx playwright test`
-
-## 6. Final Results
-*(To be filled during implementation phase after tests are executed)*
-
-## 7. Known Limitations or Deferred Tests
-- E2E testing of file uploads might require mock files in the testing environment.
-- Responsive testing in Playwright will cover standard viewports, but manual visual inspection is still required for edge cases.
+*All tests are written **before** implementation (TDD). The failing test cycle will be visible in the CI log before the actual code is merged.*

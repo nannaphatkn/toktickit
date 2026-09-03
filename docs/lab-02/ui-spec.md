@@ -1,73 +1,81 @@
-# Lab 2 UI Specification (Zen Green Theme)
+# Lab 2 Phase 1 – UI Specification (`ui-spec.md`)
 
-## 1. Color Tokens
+## 🎨 Zen Green Theme (ต่อจาก Labsheet หน้า 8)
+| Token | HEX / HSL | Usage |
+|-------|-----------|-------|
+| **Primary** | `#006B3C` (hsl(157,100%,21%)) | Main brand colour – navigation bar, buttons, active tabs |
+| **Secondary** | `#0B7A46` (hsl(157,55%,30%)) | Accent colour – secondary buttons, focus rings, links |
+| **Background** | `#F5FAF7` (hsl(150,20%,96%)) | Page background, cards, modal body |
+| **Surface** | `#FFFFFF` | Card / table surface – pure white for contrast |
+| **Text‑Primary** | `#1A2421` (dark charcoal‑green) | Headings, primary copy |
+| **Text‑Secondary** | `#4A4A4A` | Supporting copy, placeholders |
+| **Success** | `#16A34A` | Success alerts, check‑marks |
+| **Error** | `#C62828` | Error alerts, validation messages |
+| **Warning** | `#ED6C02` | Warning alerts |
 
-| Token / Element | Required Style |
-|---|---|
-| Primary green | `#006B3C` for app header, primary actions, and strong emphasis. |
-| Secondary green | `#0B7A46` for active tabs, focus accents, links, and hover states. |
-| Pale green | `#EAF6EF` for selected, success, and subtle section emphasis. |
-| Page background | `#F5F7F6` or similarly quiet near-white. |
-| Surface / cards | White (`#FFFFFF`) with subtle border and restrained shadow. |
-| Text | Dark charcoal-green (`#1A2421`), not pure black, for comfortable reading. |
-| Editable field | White background with clear neutral border (`#D1D5DB`). |
-| Read-only field | Soft gray-green or warm ivory shading (`#F3F4F6` or `#F9FAFB`) that is distinct but readable. |
-| Error | Dark red text and border (`#DC2626`); message appears immediately below the field. |
-| Warning | Amber callout or badge (`#D97706`); do not use warning color as ordinary decoration. |
-| Success | Green confirmation (`#16A34A`) with readable text and no reliance on color alone. |
+## 🖋 Typography & Spacing
+- **Font Family:** `Outfit`, fallback to `Inter` or system sans‑serif – load via Google Fonts.
+- **Base Font‑size:** 16 px (1 rem).
+- **Heading Scale:**
+  - `h1`: 2.5 rem / 40 px – weight 700
+  - `h2`: 2 rem / 32 px – weight 600
+  - `h3`: 1.75 rem / 28 px – weight 600
+- **Body Text:** 1 rem / 16 px – weight 400
+- **Line‑height:** 1.5 for body, 1.2 for headings.
+- **Spacing Grid:** 4 px base unit (margins/padding multiples of 4).
 
-## 2. Typography and Spacing
-- **Font Family:** Inter or system default sans-serif.
-- **Base Font Size:** 16px (1rem) for body text.
-- **Spacing:** Use a consistent 4px or 8px baseline grid (e.g., margins of 8px, 16px, 24px, 32px).
-- **Labels:** Appear above controls with consistent font weight (e.g., 500 or 600) and spacing.
+## 📐 Layout & Responsive Break‑points
+| Breakpoint | Width | Layout Adjustments |
+|------------|------|-------------------|
+| **Desktop** | ≥ 1200 px | 3‑column grid for ticket cards, side navigation stays vertical, max‑width 1200 px.
+| **Tablet** | 768 – 1199 px | 2‑column grid, top navigation with hamburger menu.
+| **Mobile** | < 768 px | Single‑column stack, full‑width forms, drawer navigation.
 
-## 3. Component States & Rules
-- **Required Fields:** Show a red asterisk (`*`). The asterisk does not replace validation messages.
-- **Inputs:** One consistent height (e.g., 40px). Multiline description is taller and resizable vertically only.
-- **Buttons:**
-  - *Primary:* Solid `#006B3C` background, white text.
-  - *Secondary:* Outline with `#0B7A46` border and text.
-  - *Disabled:* Grayed out background (`#E5E7EB`), text (`#9CA3AF`), distinct from active state.
-  - *Busy:* Shows a loading spinner and is disabled while processing.
-- **Icons:** Every icon-only control requires an accessible label and tooltip.
-- **Focus:** Focus indicators (e.g., ring in `#0B7A46`) must remain visible for keyboard users.
-- **Validation:** Messages appear near the associated field (below), not just at the top of the form.
+## 🖥 UI Components (states & variations)
+### 1. Navigation Bar
+- Height: **64 px**
+- Background: **Primary** (`#006B3C`) with subtle **glass‑morphism** (`backdrop‑filter: blur(6px); opacity:0.95`).
+- Left: Logo; Right: Requester avatar dropdown.
+- Active link: underline 2 px, colour **Secondary**.
 
-## 4. Screen Layouts
+### 2. Buttons
+| Variant | Background | Text | Border | Hover / Focus |
+|--------|------------|------|--------|---------------|
+| Primary | Primary | White | none | Darken Primary 5% (`#005531`). |
+| Secondary | Transparent | Primary | 1 px solid Primary | Background Primary 10% opacity. |
+| Disabled | `#E0E0E0` | `#9E9E9E` | none | cursor: not‑allowed |
 
-### 4.1 Development Requester Selection Screen
-- **Elements:** TokTickIT title, short explanation text, Requester dropdown (loaded from DB), Continue button, loading/empty/error states.
-- **Layout:** Centered card on a `#F5F7F6` background.
+### 3. Form Fields
+- **Input / Textarea**: 1 px solid `#CCCCCC`, border‑radius 4 px, padding 0.5 rem.
+- **Focus**: `outline: 2px solid Primary`, box‑shadow `0 0 0 3px rgba(0,107,60,0.2)`.
+- **Error**: border colour **Error**, helper text in **Error** colour.
+- **Required**: Red asterisk (`*`) after label.
 
-### 4.2 Create Ticket Screen
-- **Elements:** Ticket Number (Read-only), Ticket Date (Read-only), Requester (Read-only), Category (Dropdown), Related System (Dropdown), Requested Priority (Dropdown), Ticket Summary (Text input), Description (Textarea), Attachments section, Submit/Cancel buttons.
-- **Layout:**
-  - *Top:* System-generated fields (Number, Date, Requester).
-  - *Middle:* Classification grouped together, Summary & Description full width.
-  - *Bottom:* Attachments below main fields, primary/secondary actions at the bottom right.
+### 4. Ticket Card (My Tickets list)
+- Surface: white, radius 8 px, shadow `0 2px 6px rgba(0,0,0,0.08)`.
+- Header: ticket number (bold) + status badge (New – Secondary, In‑Progress – Primary, Closed – Text‑Secondary).
+- Body: summary (truncate 2 lines with ellipsis), category badge (secondary bg), priority icon (color‑coded).
+- Hover: raise shadow, background `#F0FAF5`.
 
-### 4.3 My Tickets Screen
-- **Elements:** Search bar, Category filter, Priority filter, Status filter, 'Create Ticket' action button, Data table or list of cards, Pagination controls.
-- **Columns/Fields:** Ticket Number, Created Date, Summary, Category, Requested Priority, IT Priority, Current Status.
-- **States:** Loading spinner, Empty state (no tickets yet), No-results state (filters applied but no match), API failure state.
+### 5. Attachment List (Ticket Detail)
+- Row: file icon, name, size, **Download** button (primary) and **Remove** icon button (Error colour).
+- Soft‑removed: opacity 0.4, disabled download, tooltip *"Removed – not downloadable"*.
 
-### 4.4 Requester Ticket Detail (View Mode)
-- **Elements:** Read-only view of ticket fields from Create Mode. Attachment list with download buttons and soft-remove (Trash icon) buttons.
-- **Layout:** Clear distinction between ticket information and attachment actions. Removed attachments shown with a strikethrough or grayed out, with download disabled.
+## ♿ Accessibility
+- All interactive elements receive a **focus outline** (2 px solid Primary).
+- ARIA labels for icon‑only buttons (`aria-label="Remove attachment"`).
+- Colour contrast meets **WCAG AA** (Primary vs White = 4.5:1).
+- Keyboard navigation order follows visual order.
+- Provide a **skip‑to‑content** link at the top of each page.
 
-## 5. Responsive Behavior
+## 📋 Checklist (must be present in the markdown)
+- ✅ Theme colour tokens (Primary, Secondary, Background, Surface, Text, Success, Error, Warning).
+- ✅ Typography scale and spacing grid.
+- ✅ Responsive break‑points with layout description.
+- ✅ Component definitions with all states (nav, button, form field, ticket card, attachment list).
+- ✅ Accessibility notes (focus, ARIA, contrast, keyboard).
+- ✅ Optional: mock‑up screenshots (can be added later).
 
-| Viewport | Required Behavior |
-|---|---|
-| **Desktop ≥ 992px** | Multi-column layout as specified; content centered with a sensible max-width (e.g., 1200px). My Tickets is a data table. |
-| **Tablet 768-991px** | Two-column layout where practical; Summary and Description receive enough width. |
-| **Mobile < 768px** | Fields stack vertically; buttons remain touch-friendly (min 44px height); no horizontal page scrolling. My Tickets becomes a stacked card layout per ticket. |
+---
 
-*No clipped labels, overlapping messages, hidden buttons, or unreadable attachment names at any size.*
-
-## 6. Accessibility & Visual Checks
-- [ ] Color contrast meets WCAG AA (4.5:1 for normal text).
-- [ ] Keyboard navigation follows logical DOM order.
-- [ ] Screen readers announce form validation errors.
-- [ ] Playwright screenshots captured for desktop, tablet, and mobile.
+*All UI specifications are written before any code is implemented so developers can copy the token values and component patterns directly into the React component library.*
