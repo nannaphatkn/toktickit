@@ -2,12 +2,12 @@
 
 Full-stack application for CPE 334 Introduction to Software Engineering in the Age of AI Agents.
 
-## 🚀 Overview
+##  Overview
 TokTickIT is an IT Service Desk ticketing system designed for internal requester workflow and support ticket management.
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 - **Frontend**: React + TypeScript + Vite + Bootstrap
 - **Backend**: Node.js + Express + TypeScript
 - **Database**: PostgreSQL + Prisma ORM
@@ -36,7 +36,7 @@ toktickit/
 
 ---
 
-## 📚 Documentation
+##  Documentation
 - 📄 **Lab 1 Docs**: [`docs/lab-01/`](./docs/lab-01/)
 - 📋 **Lab 2 Specs**:
   - [Specification & Acceptance Criteria](./docs/lab-02/specification.md)
@@ -46,7 +46,7 @@ toktickit/
 
 ---
 
-## 🏁 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js (v18+)
