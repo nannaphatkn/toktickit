@@ -19,3 +19,7 @@ yarn-error.log*
 .DS_Store
 .vscode/
 .idea/
+
+# Uploads
+server/uploads/*
+!server/uploads/.gitkeep

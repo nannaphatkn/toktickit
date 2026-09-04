@@ -10,12 +10,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TicketStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
 model Category {
   id          String   @id @default(uuid())
   name        String   @unique
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  tickets     Ticket[]
 }
 
 model RequesterUser {
@@ -25,4 +39,46 @@ model RequesterUser {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tickets   Ticket[]
 }
+
+model RelatedSystem {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tickets   Ticket[]
+}
+
+model Ticket {
+  id                Int           @id @default(autoincrement())
+  ticketNumber      String        @unique
+  summary           String
+  description       String
+  requestedPriority Priority
+  itPriority        Priority?
+  currentStatus     TicketStatus  @default(NEW)
+  requesterId       Int
+  requester         RequesterUser @relation(fields: [requesterId], references: [id])
+  categoryId        String
+  category          Category      @relation(fields: [categoryId], references: [id])
+  relatedSystemId   Int
+  relatedSystem     RelatedSystem @relation(fields: [relatedSystemId], references: [id])
+  attachments       Attachment[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model Attachment {
+  id           Int       @id @default(autoincrement())
+  ticketId     Int
+  ticket       Ticket    @relation(fields: [ticketId], references: [id])
+  fileName     String
+  originalName String
+  fileType     String
+  fileSize     Int
+  isRemoved    Boolean   @default(false)
+  removedAt    DateTime?
+  createdAt    DateTime  @default(now())
+}
+

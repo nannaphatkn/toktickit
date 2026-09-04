@@ -1,10 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
-import { vi, describe, it, expect, beforeEach, Mock } from 'vitest';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 
 describe('App - Category Client Test', () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
+    globalThis.fetch = vi.fn();
   });
 
   it('renders initial state correctly', () => {
@@ -16,7 +16,7 @@ describe('App - Category Client Test', () => {
 
   it('fetches and displays categories when Check System is clicked', async () => {
     // Mock the responses for /api/health and /api/categories
-    (global.fetch as Mock).mockImplementation((url: string) => {
+    (globalThis.fetch as Mock).mockImplementation((url: string) => {
       if (url.includes('/api/health')) {
         return Promise.resolve({
           ok: true,
@@ -54,7 +54,7 @@ describe('App - Category Client Test', () => {
   });
 
   it('displays error if fetch fails', async () => {
-    (global.fetch as Mock).mockRejectedValue(new Error('Network error'));
+    (globalThis.fetch as Mock).mockRejectedValue(new Error('Network error'));
 
     render(<App />);
     

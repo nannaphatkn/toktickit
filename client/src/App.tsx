@@ -1,5 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import CreateTicket from './pages/CreateTicket';
 import { RequesterProvider, useRequester } from './contexts/RequesterContext';
 import Navbar from './components/Navbar';
 
@@ -43,9 +45,9 @@ function MainContent() {
                     <div className="card-body text-center">
                       <h5 style={{ color: '#006B3C' }}>📝 Create Ticket</h5>
                       <p className="text-muted small">Submit a new support request</p>
-                      <button className="btn btn-sm" style={{ backgroundColor: '#006B3C', color: 'white' }} disabled>
-                        Coming Soon
-                      </button>
+                      <Link to="/create-ticket" className="btn btn-sm" style={{ backgroundColor: '#006B3C', color: 'white' }}>
+                        Go
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -72,10 +74,15 @@ function MainContent() {
 function App() {
   return (
     <RequesterProvider>
-      <div className="min-vh-100" style={{ backgroundColor: '#f8f9fa' }}>
-        <Navbar />
-        <MainContent />
-      </div>
+      <BrowserRouter>
+        <div className="min-vh-100" style={{ backgroundColor: '#f8f9fa' }}>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<MainContent />} />
+            <Route path="/create-ticket" element={<CreateTicket />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
     </RequesterProvider>
   );
 }
