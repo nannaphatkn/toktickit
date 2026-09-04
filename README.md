@@ -7,7 +7,7 @@ TokTickIT is an IT Service Desk ticketing system designed for internal requester
 
 ---
 
-##  Tech Stack
+## Tech Stack
 - **Frontend**: React + TypeScript + Vite + Bootstrap
 - **Backend**: Node.js + Express + TypeScript
 - **Database**: PostgreSQL + Prisma ORM
