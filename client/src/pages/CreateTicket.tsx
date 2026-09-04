@@ -130,7 +130,27 @@ export default function CreateTicket() {
     }
   };
 
-  if (!requester) return null;
+  if (!requester) {
+    return (
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-6">
+            <div className="card shadow-sm border-0">
+              <div className="card-body text-center p-5">
+                <h3 className="mb-3" style={{ color: '#006B3C' }}>⚠️ Please Select a Requester</h3>
+                <p className="text-muted mb-4">
+                  Please select a Development Requester from the dropdown above before creating a ticket.
+                </p>
+                <div className="alert alert-info" role="alert">
+                  👆 Use the selector in the navigation bar to choose your identity.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-4">
