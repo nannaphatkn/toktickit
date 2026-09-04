@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import { PrismaClient } from '@prisma/client';
+import requesterRoutes from './routes/requesterRoutes';
 
 dotenv.config();
 
@@ -24,6 +25,8 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+app.use('/api/requesters', requesterRoutes);
 
 app.get('/api/categories', async (req, res) => {
   try {
