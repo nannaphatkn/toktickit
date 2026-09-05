@@ -1,70 +1,35 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import App from './App';
-import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-describe('App - Category Client Test', () => {
+describe('App - Requester Access Guard & Dashboard', () => {
   beforeEach(() => {
+    localStorage.clear();
     globalThis.fetch = vi.fn();
   });
 
-  it('renders initial state correctly', () => {
+  it('renders welcome screen prompting requester selection when unauthenticated', () => {
     render(<App />);
-    expect(screen.getByText('TokTickIT IT Service Desk')).toBeInTheDocument();
-    expect(screen.getByText('[ Check System ]')).toBeInTheDocument();
-    expect(screen.queryByText('System Status:')).not.toBeInTheDocument();
+    expect(screen.getByText(/Welcome to TokTickIT/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Please select a Development Requester from the dropdown/i)
+    ).toBeInTheDocument();
   });
 
-  it('fetches and displays categories when Check System is clicked', async () => {
-    // Mock the responses for /api/health and /api/categories
-    (globalThis.fetch as Mock).mockImplementation((url: string) => {
-      if (url.includes('/api/health')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ status: 'ok', service: 'TokTickIT API' }),
-        });
-      }
-      if (url.includes('/api/categories')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve([
-            { id: '1', name: 'Hardware' },
-            { id: '2', name: 'Software' },
-          ]),
-        });
-      }
-      return Promise.reject(new Error('not found'));
-    });
+  it('renders user welcome and action cards when a requester is selected', () => {
+    localStorage.setItem(
+      'requester',
+      JSON.stringify({
+        id: 1,
+        name: 'Jennifer Anderson',
+        email: 'jennifer.a@company.com',
+        isActive: true,
+      })
+    );
 
     render(<App />);
-    
-    const button = screen.getByText('[ Check System ]');
-    fireEvent.click(button);
-
-    // It should display loading state
-    expect(screen.getByText('⏳ "loading"...')).toBeInTheDocument();
-
-    // After fetch resolves, it should display the categories
-    await waitFor(() => {
-      expect(screen.getByText('System Status: Online')).toBeInTheDocument();
-    });
-
-    expect(screen.getByText('Supported Request Categories')).toBeInTheDocument();
-    expect(screen.getByText('1. Hardware')).toBeInTheDocument();
-    expect(screen.getByText('2. Software')).toBeInTheDocument();
-  });
-
-  it('displays error if fetch fails', async () => {
-    (globalThis.fetch as Mock).mockRejectedValue(new Error('Network error'));
-
-    render(<App />);
-    
-    const button = screen.getByText('[ Check System ]');
-    fireEvent.click(button);
-
-    await waitFor(() => {
-      expect(screen.getByText('System Status: Offline')).toBeInTheDocument();
-    });
-    
-    expect(screen.getByText('Unable to connect to TokTickIT API')).toBeInTheDocument();
+    expect(screen.getByText(/Welcome, Jennifer Anderson!/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Create Ticket/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/My Tickets/i).length).toBeGreaterThanOrEqual(1);
   });
 });
