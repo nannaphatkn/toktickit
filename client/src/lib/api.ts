@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 /**
  * Fetch wrapper that automatically attaches the X-Requester-Id header
@@ -7,17 +7,15 @@ const API_BASE = 'http://localhost:5001/api';
 export async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const requesterId = localStorage.getItem('requesterId');
 
-  const headers: Record<string, string> = {
-    ...(options.headers as Record<string, string> || {}),
-  };
+  const headers = new Headers(options.headers);
 
   if (requesterId) {
-    headers['X-Requester-Id'] = requesterId;
+    headers.set('X-Requester-Id', requesterId);
   }
 
   // Only set Content-Type for JSON if body is not FormData
   if (options.body && !(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
+    headers.set('Content-Type', 'application/json');
   }
 
   return fetch(`${API_BASE}${path}`, {

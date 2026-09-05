@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 
 export interface Requester {
   id: number;
@@ -17,8 +17,14 @@ const RequesterContext = createContext<RequesterContextType | undefined>(undefin
 
 export function RequesterProvider({ children }: { children: ReactNode }) {
   const [requester, setRequesterState] = useState<Requester | null>(() => {
-    const saved = localStorage.getItem('requester');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('requester');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      localStorage.removeItem('requester');
+      localStorage.removeItem('requesterId');
+      return null;
+    }
   });
 
   const setRequester = (r: Requester | null) => {
@@ -33,19 +39,6 @@ export function RequesterProvider({ children }: { children: ReactNode }) {
   };
 
   const clearRequester = () => setRequester(null);
-
-  // Sync from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('requester');
-    if (saved) {
-      try {
-        setRequesterState(JSON.parse(saved));
-      } catch {
-        localStorage.removeItem('requester');
-        localStorage.removeItem('requesterId');
-      }
-    }
-  }, []);
 
   return (
     <RequesterContext.Provider value={{ requester, setRequester, clearRequester }}>
