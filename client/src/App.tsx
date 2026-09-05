@@ -1,99 +1,83 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from './assets/vite.svg';
-import heroImg from './assets/hero.png';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import { RequesterProvider, useRequester } from './contexts/RequesterContext';
+import Navbar from './components/Navbar';
 
-interface Category {
-  id: string;
-  name: string;
+function MainContent() {
+  const { requester } = useRequester();
+
+  if (!requester) {
+    return (
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-6">
+            <div className="card shadow-sm border-0">
+              <div className="card-body text-center p-5">
+                <h2 className="mb-3" style={{ color: '#006B3C' }}>🎫 Welcome to TokTickIT</h2>
+                <p className="text-muted mb-4">
+                  Please select a Development Requester from the dropdown above to get started.
+                </p>
+                <div className="alert alert-info" role="alert">
+                  👆 Use the selector in the navigation bar to choose your identity.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mt-4">
+      <div className="row justify-content-center">
+        <div className="col-md-8">
+          <div className="card shadow-sm border-0">
+            <div className="card-body p-4">
+              <h3 style={{ color: '#006B3C' }}>Welcome, {requester.name}! 👋</h3>
+              <p className="text-muted">You are logged in as a Development Requester.</p>
+              <hr />
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <div className="card h-100 border-0" style={{ backgroundColor: '#f0f9f4' }}>
+                    <div className="card-body text-center">
+                      <h5 style={{ color: '#006B3C' }}>📝 Create Ticket</h5>
+                      <p className="text-muted small">Submit a new support request</p>
+                      <button className="btn btn-sm" style={{ backgroundColor: '#006B3C', color: 'white' }} disabled>
+                        Coming Soon
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="card h-100 border-0" style={{ backgroundColor: '#f0f9f4' }}>
+                    <div className="card-body text-center">
+                      <h5 style={{ color: '#006B3C' }}>📋 My Tickets</h5>
+                      <p className="text-muted small">View your submitted tickets</p>
+                      <button className="btn btn-sm" style={{ backgroundColor: '#006B3C', color: 'white' }} disabled>
+                        Coming Soon
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function App() {
-  const [loading, setLoading] = useState(false);
-  const [systemStatus, setSystemStatus] = useState<string | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  const checkSystem = async () => {
-    setLoading(true);
-    setError(null);
-    setSystemStatus(null);
-    setCategories([]);
-
-    try {
-      const [healthRes, categoriesRes] = await Promise.all([
-        fetch('http://localhost:5001/api/health'),
-        fetch('http://localhost:5001/api/categories')
-      ]);
-
-      if (!healthRes.ok || !categoriesRes.ok) {
-        throw new Error('Failed to fetch from API');
-      }
-
-      const healthData = await healthRes.json();
-      const categoriesData = await categoriesRes.json();
-
-      setSystemStatus(healthData.status === 'ok' ? 'Online' : 'Offline');
-      setCategories(categoriesData);
-    } catch (err) {
-      console.error(err);
-      setSystemStatus('Offline');
-      setError('Unable to connect to TokTickIT API');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="Hero" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>TokTickIT IT Service Desk</h1>
-        </div>
-        
-        <button
-          type="button"
-          className="counter"
-          onClick={checkSystem}
-          disabled={loading}
-          style={{ marginBottom: '20px' }}
-        >
-          {loading ? '⏳ "loading"...' : '[ Check System ]'}
-        </button>
-
-        {systemStatus && (
-          <div style={{ textAlign: 'left', display: 'inline-block', minWidth: '300px', backgroundColor: '#f9f9f9', color: '#333', padding: '20px', borderRadius: '8px', border: '1px solid #ddd' }}>
-            <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>System Status: {systemStatus}</p>
-            
-            {error && (
-              <p style={{ color: '#d32f2f', margin: '0' }}>{error}</p>
-            )}
-
-            {categories.length > 0 && (
-              <>
-                <p style={{ margin: '15px 0 10px 0', fontWeight: 'bold' }}>Supported Request Categories</p>
-                <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                  {categories.map((category, index) => (
-                    <li key={category.id} style={{ marginBottom: '5px' }}>{index + 1}. {category.name}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        )}
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <RequesterProvider>
+      <div className="min-vh-100" style={{ backgroundColor: '#f8f9fa' }}>
+        <Navbar />
+        <MainContent />
+      </div>
+    </RequesterProvider>
   );
 }
 
 export default App;
-
