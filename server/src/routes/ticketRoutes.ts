@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient, Priority } from '@prisma/client';
+import { Priority } from '@prisma/client';
+import { prisma } from '../prisma';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Multer Config
 const uploadDir = path.join(__dirname, '../../uploads');
