@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRequester, type Requester } from '../contexts/RequesterContext';
+import { apiFetch } from '../lib/api';
 
 export default function RequesterSelector() {
   const { requester, setRequester } = useRequester();
@@ -10,7 +11,7 @@ export default function RequesterSelector() {
   useEffect(() => {
     async function fetchRequesters() {
       try {
-        const res = await fetch('http://localhost:5001/api/requesters');
+        const res = await apiFetch('/requesters');
         if (!res.ok) throw new Error('Failed to fetch requesters');
         const data: Requester[] = await res.json();
         setRequesters(data);
