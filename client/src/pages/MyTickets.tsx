@@ -328,7 +328,7 @@ export default function MyTickets() {
                   <tr key={ticket.id}>
                     <td className="fw-semibold text-nowrap">{ticket.ticketNumber}</td>
                     <td className="ticket-summary">{ticket.summary}</td>
-                    <td>{ticket.category.name}</td>
+                    <td><span className="category-badge">{ticket.category.name}</span></td>
                     <td><PriorityBadge priority={ticket.requestedPriority} /></td>
                     <td><StatusBadge status={ticket.currentStatus} /></td>
                     <td className="text-nowrap">{formatDate(ticket.createdAt)}</td>
@@ -352,7 +352,7 @@ export default function MyTickets() {
                 </div>
                 <h2 className="h5 ticket-card-summary">{ticket.summary}</h2>
                 <dl className="ticket-card-meta mb-3">
-                  <div><dt>Category</dt><dd>{ticket.category.name}</dd></div>
+                  <div><dt>Category</dt><dd><span className="category-badge">{ticket.category.name}</span></dd></div>
                   <div><dt>Priority</dt><dd><PriorityBadge priority={ticket.requestedPriority} /></dd></div>
                   <div><dt>Created</dt><dd>{formatDate(ticket.createdAt)}</dd></div>
                 </dl>
