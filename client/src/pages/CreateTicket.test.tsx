@@ -116,13 +116,14 @@ describe('CreateTicket Component', () => {
     expect(headers.get('X-Requester-Id')).toBe('1');
   });
 
-  it('T-04: shows a validation error immediately for a file larger than 5 MB', () => {
+  it('T-04: shows a validation error immediately for a file larger than 5 MB', async () => {
     localStorage.setItem(
       'requester',
       JSON.stringify({ id: 1, name: 'Jennifer Anderson', email: 'jennifer@example.com', isActive: true })
     );
 
     renderWithContext();
+    await screen.findByText('Hardware');
     const oversizedFile = new File(
       [new Uint8Array(5 * 1024 * 1024 + 1)],
       'oversized.png',
@@ -135,13 +136,14 @@ describe('CreateTicket Component', () => {
     expect(screen.getByText(/File size exceeds 5 MB/i)).toBeInTheDocument();
   });
 
-  it('shows a validation error immediately for an unsupported file type', () => {
+  it('shows a validation error immediately for an unsupported file type', async () => {
     localStorage.setItem(
       'requester',
       JSON.stringify({ id: 1, name: 'Jennifer Anderson', email: 'jennifer@example.com', isActive: true })
     );
 
     renderWithContext();
+    await screen.findByText('Hardware');
     const executable = new File(['payload'], 'malicious.exe', { type: 'application/x-msdownload' });
     fireEvent.change(screen.getByLabelText(/Attachments/i), {
       target: { files: [executable] },
@@ -150,13 +152,14 @@ describe('CreateTicket Component', () => {
     expect(screen.getByText(/Unsupported file type/i)).toBeInTheDocument();
   });
 
-  it('shows a validation error immediately when more than five files are selected', () => {
+  it('shows a validation error immediately when more than five files are selected', async () => {
     localStorage.setItem(
       'requester',
       JSON.stringify({ id: 1, name: 'Jennifer Anderson', email: 'jennifer@example.com', isActive: true })
     );
 
     renderWithContext();
+    await screen.findByText('Hardware');
     const files = Array.from(
       { length: 6 },
       (_, index) => new File(['image'], `image-${index}.png`, { type: 'image/png' })
@@ -168,13 +171,14 @@ describe('CreateTicket Component', () => {
     expect(screen.getByText(/maximum of 5 files/i)).toBeInTheDocument();
   });
 
-  it('rejects a file whose extension does not match its MIME type', () => {
+  it('rejects a file whose extension does not match its MIME type', async () => {
     localStorage.setItem(
       'requester',
       JSON.stringify({ id: 1, name: 'Jennifer Anderson', email: 'jennifer@example.com', isActive: true })
     );
 
     renderWithContext();
+    await screen.findByText('Hardware');
     const disguisedFile = new File(['payload'], 'disguised.exe', { type: 'application/pdf' });
     fireEvent.change(screen.getByLabelText(/Attachments/i), {
       target: { files: [disguisedFile] },

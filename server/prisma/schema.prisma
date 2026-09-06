@@ -80,6 +80,7 @@ model Attachment {
   fileType     String
   fileSize     Int
   isRemoved    Boolean   @default(false)
+  removalReason String?
   removedAt    DateTime?
   createdAt    DateTime  @default(now())
 }

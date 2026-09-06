@@ -61,7 +61,7 @@ The PostgreSQL database (managed via Prisma) will have the following models:
 - **Category:** id (PK), name (e.g., Account and Access, Hardware, Software, Network).
 - **RelatedSystem:** id (PK), name (e.g., Email, Campus Wi-Fi, VPN, Corporate Laptop).
 - **Ticket:** id (PK), ticketNumber (Unique), requesterId (FK), categoryId (FK), relatedSystemId (FK), requestedPriority, itPriority, currentStatus, summary, description, createdAt, updatedAt.
-- **Attachment:** id (PK), ticketId (FK), fileName, originalName, fileType, fileSize, isRemoved (Boolean), removedAt, createdAt.
+- **Attachment:** id (PK), ticketId (FK), fileName, originalName, fileType, fileSize, isRemoved (Boolean), removalReason (nullable), removedAt, createdAt.
 
 **Indexes:** `ticketNumber` (unique), `requesterId` (for list queries).
 **Seed Data:** 4 active requesters, 1 inactive requester, 4 Categories, 6 Related Systems.

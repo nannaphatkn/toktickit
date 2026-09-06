@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import RequesterPrompt from '../components/RequesterPrompt';
 import { useRequester } from '../contexts/requesterContextCore';
 import { apiFetch } from '../lib/api';
-
-type Priority = 'LOW' | 'MEDIUM' | 'HIGH';
-type TicketStatus = 'NEW' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+import { StatusBadge, PriorityBadge, type Priority, type TicketStatus } from '../components/TicketBadges';
 
 interface Category {
   id: number;
@@ -36,28 +34,12 @@ interface TicketListResponse {
 
 const PAGE_SIZE = 10;
 
-function displayStatus(status: TicketStatus): string {
-  return status
-    .toLowerCase()
-    .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat(undefined, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
   }).format(new Date(value));
-}
-
-function StatusBadge({ status }: { status: TicketStatus }) {
-  return <span className={`ticket-badge status-${status.toLowerCase()}`}>{displayStatus(status)}</span>;
-}
-
-function PriorityBadge({ priority }: { priority: Priority }) {
-  return <span className={`ticket-badge priority-${priority.toLowerCase()}`}>{priority}</span>;
 }
 
 export default function MyTickets() {
@@ -90,6 +72,11 @@ export default function MyTickets() {
   }, [searchInput]);
 
   useEffect(() => {
+    if (!requester) {
+      setCategories([]);
+      return;
+    }
+
     const controller = new AbortController();
     apiFetch('/categories', { signal: controller.signal })
       .then(async (response) => {
@@ -101,7 +88,7 @@ export default function MyTickets() {
         if (loadError.name !== 'AbortError') setCategories([]);
       });
     return () => controller.abort();
-  }, []);
+  }, [requester]);
 
   const query = useMemo(() => {
     const params = new URLSearchParams({

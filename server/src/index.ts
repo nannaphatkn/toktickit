@@ -7,6 +7,8 @@ import requesterRoutes from './routes/requesterRoutes';
 import relatedSystemRoutes from './routes/relatedSystemRoutes';
 import ticketRoutes from './routes/ticketRoutes';
 import categoryRoutes from './routes/categoryRoutes';
+import attachmentRoutes from './routes/attachmentRoutes';
+import referenceDataRoutes from './routes/referenceDataRoutes';
 
 dotenv.config();
 
@@ -33,6 +35,8 @@ app.use('/api/requesters', requesterRoutes);
 app.use('/api/related-systems', relatedSystemRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/attachments', attachmentRoutes);
+app.use('/api/reference-data', referenceDataRoutes);
 
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Unhandled API error:', error);

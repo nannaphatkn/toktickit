@@ -139,7 +139,19 @@ All three endpoints **do not require** `X-Requester-Id`.
 ---
 
 ## 5️⃣ Attachment Endpoints
-### 5.1 Download Attachment
+### 5.1 Add Attachment to an Existing Ticket
+- **Method**: `POST`
+- **Path**: `/api/tickets/:id/attachments`
+- **Headers**: `X-Requester-Id: <number>`
+- **Body**: `multipart/form-data` with one `file` field.
+- **Success**: `201 Created` – persists the attachment metadata and returns the attachment record.
+- **Validation**: maximum 5 active attachments per ticket; each file must be ≤ 5 MiB and use JPG/JPEG, PNG, WEBP, or PDF MIME/extension.
+- **Errors**:
+  - `400 Bad Request` – missing file, invalid type/size, or active attachment limit reached
+  - `403 Forbidden` – ticket belongs to another requester
+  - `404 Not Found` – ticket does not exist
+
+### 5.2 Download Attachment
 - **Method**: `GET`
 - **Path**: `/api/attachments/:id/download`
 - **Headers**: `X-Requester-Id: <number>`
@@ -149,10 +161,11 @@ All three endpoints **do not require** `X-Requester-Id`.
   - `403 Forbidden` – attachment belongs to a ticket owned by another requester
   - `410 Gone` – attachment has been **soft‑removed** (still in DB but not downloadable)
 
-### 5.2 Soft‑Remove Attachment
+### 5.3 Soft‑Remove Attachment
 - **Method**: `DELETE`
 - **Path**: `/api/attachments/:id`
 - **Headers**: `X-Requester-Id: <number>`
+- **Body**: JSON `{ "removalReason": "<3–500 character reason>" }`.
 - **Success**: `200 OK`
 ```json
 { "success": true, "message": "Attachment removed successfully" }
@@ -160,7 +173,7 @@ All three endpoints **do not require** `X-Requester-Id`.
 - **Errors**:
   - `404 Not Found` – attachment does not exist
   - `403 Forbidden` – attachment belongs to another requester
-  - `400 Bad Request` – attachment already marked `isRemoved = true`
+  - `400 Bad Request` – attachment already marked `isRemoved = true` or the removal reason is invalid
 
 ---
 
@@ -199,7 +212,9 @@ curl -X GET http://localhost:3000/api/attachments/101/download \
 
 # Soft‑remove an attachment
 curl -X DELETE http://localhost:3000/api/attachments/101 \
-  -H "X-Requester-Id: 1"
+  -H "X-Requester-Id: 1" \
+  -H "Content-Type: application/json" \
+  -d '{"removalReason":"No longer needed"}'
 ```
 
 ---
