@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 
 import { prisma } from './prisma';
 import requesterRoutes from './routes/requesterRoutes';
+import relatedSystemRoutes from './routes/relatedSystemRoutes';
+import ticketRoutes from './routes/ticketRoutes';
 
 dotenv.config();
 
@@ -27,6 +29,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/requesters', requesterRoutes);
+app.use('/api/related-systems', relatedSystemRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 app.get('/api/categories', async (req, res) => {
   try {

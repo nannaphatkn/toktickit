@@ -17,6 +17,15 @@ const requesters = [
   { name: 'Robert Taylor', email: 'robert.t@company.com', isActive: false },
 ];
 
+const relatedSystems = [
+  { name: 'Corporate Laptop' },
+  { name: 'Email/Outlook' },
+  { name: 'Campus Wi-Fi' },
+  { name: 'Corporate VPN' },
+  { name: 'ERP System' },
+  { name: 'Desktop Monitor/Peripherals' },
+];
+
 async function main() {
   console.log('Start seeding...');
 
@@ -49,6 +58,22 @@ async function main() {
       console.log(`Created requester: ${created.name} (active: ${created.isActive})`);
     } else {
       console.log(`Requester already exists: ${existingRequester.name}`);
+    }
+  }
+
+  // Seed Related Systems
+  for (const system of relatedSystems) {
+    const existingSystem = await prisma.relatedSystem.findUnique({
+      where: { name: system.name },
+    });
+
+    if (!existingSystem) {
+      const created = await prisma.relatedSystem.create({
+        data: system,
+      });
+      console.log(`Created related system: ${created.name}`);
+    } else {
+      console.log(`Related system already exists: ${existingSystem.name}`);
     }
   }
 
