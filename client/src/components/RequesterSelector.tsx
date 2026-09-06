@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useRequester, type Requester } from '../contexts/RequesterContext';
+import { useState, useEffect, useRef } from 'react';
+import { useRequester, type Requester } from '../contexts/requesterContextCore';
 import { apiFetch } from '../lib/api';
 
 export default function RequesterSelector() {
@@ -7,6 +7,7 @@ export default function RequesterSelector() {
   const [requesters, setRequesters] = useState<Requester[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const restoredRequesterId = useRef(requester?.id).current;
 
   useEffect(() => {
     async function fetchRequesters() {
@@ -15,6 +16,9 @@ export default function RequesterSelector() {
         if (!res.ok) throw new Error('Failed to fetch requesters');
         const data: Requester[] = await res.json();
         setRequesters(data);
+        if (restoredRequesterId && !data.some((candidate) => candidate.id === restoredRequesterId && candidate.isActive)) {
+          setRequester(null);
+        }
       } catch (err) {
         console.error(err);
         setError('Unable to load requesters');
@@ -23,7 +27,7 @@ export default function RequesterSelector() {
       }
     }
     fetchRequesters();
-  }, []);
+  }, [restoredRequesterId, setRequester]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = Number(e.target.value);
@@ -39,7 +43,7 @@ export default function RequesterSelector() {
 
   if (loading) {
     return (
-      <select className="form-select form-select-sm" disabled style={{ width: '200px' }}>
+      <select aria-label="Development Requester" className="form-select form-select-sm" disabled style={{ width: '200px' }}>
         <option>Loading...</option>
       </select>
     );
@@ -47,7 +51,7 @@ export default function RequesterSelector() {
 
   if (error) {
     return (
-      <select className="form-select form-select-sm" disabled style={{ width: '200px' }}>
+      <select aria-label="Development Requester" className="form-select form-select-sm" disabled style={{ width: '200px' }}>
         <option>{error}</option>
       </select>
     );
@@ -56,6 +60,7 @@ export default function RequesterSelector() {
   return (
     <select
       id="requester-selector"
+      aria-label="Development Requester"
       className="form-select form-select-sm"
       value={requester?.id ?? 0}
       onChange={handleChange}

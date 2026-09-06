@@ -24,7 +24,7 @@ enum TicketStatus {
 }
 
 model Category {
-  id          String   @id @default(uuid())
+  id          Int      @id @default(autoincrement())
   name        String   @unique
   description String?
   createdAt   DateTime @default(now())
@@ -60,13 +60,15 @@ model Ticket {
   currentStatus     TicketStatus  @default(NEW)
   requesterId       Int
   requester         RequesterUser @relation(fields: [requesterId], references: [id])
-  categoryId        String
+  categoryId        Int
   category          Category      @relation(fields: [categoryId], references: [id])
   relatedSystemId   Int
   relatedSystem     RelatedSystem @relation(fields: [relatedSystemId], references: [id])
   attachments       Attachment[]
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+
+  @@index([requesterId])
 }
 
 model Attachment {
@@ -81,4 +83,3 @@ model Attachment {
   removedAt    DateTime?
   createdAt    DateTime  @default(now())
 }
-
