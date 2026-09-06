@@ -27,9 +27,11 @@
 | `server/tests/lab-02/my-tickets.api.test.ts` | Owned ticket list, search/filter/pagination, and access isolation |
 | `server/tests/lab-02/ticket-detail.api.test.ts` | Ticket detail response, 404/403 ownership protection, and attachment history |
 | `server/tests/lab-02/attachments.api.test.ts` | Existing-ticket upload, type/size/limit validation, download, soft-removal, reason, and access control |
+| `server/tests/unit/ticket.unit.test.ts` | Unit tests for ticket business rules and pagination calculations |
 | `client/src/pages/CreateTicket.test.tsx` | Create Ticket form and attachment handling |
 | `client/src/pages/MyTickets.test.tsx` | My Tickets list, filters, pagination, loading/error states |
 | `client/src/pages/TicketDetail.test.tsx` | Detail read-only fields, attachment states, upload validation, download, and removal modal |
+| `e2e/requester-ticket-flow.spec.ts` | Playwright E2E suite covering the full user flow (select requester → create ticket with attachments → list & search → view detail & soft-remove → cross-requester access control) |
 
 ## 4️⃣ Issue #16 Verification
 
@@ -40,24 +42,24 @@ The issue-specific automated suites currently cover:
 - `GET /api/attachments/:id/download`: active-file headers/body, removed-file `410 Gone`, and cross-requester rejection.
 - `DELETE /api/attachments/:id`: trimmed removal reason, persisted soft-removal metadata, missing/short reason, and duplicate-removal rejection.
 - Ticket Detail UI rendering, read-only presentation, empty/loading/error states, client-side file validation, download action, and removal confirmation.
+- Full E2E Playwright lifecycle test exercising all AC criteria in real browser against backend & frontend servers.
 
 Database migration verification was run locally with `cd server && npx prisma migrate deploy`; migration `20260906183000_add_attachment_removal_reason` applied successfully, followed by `npx prisma generate`.
-
-The repository does not currently contain a Playwright/Cypress harness, so the issue's E2E flow and screenshot evidence remain release follow-up work. No PR/reviewer approval is recorded here because this work is intentionally left uncommitted and unpushed.
 
 ## 5️⃣ Commands to Run Tests
 ```bash
 # Server API tests (Vitest)
-cd server && npm test
+npm run test:server # or cd server && npm test
 
 # Client UI tests (Vitest + React Testing Library)
-cd client && npm test
+npm run test:client # or cd client && npm test
+
+# End-to-End E2E tests (Playwright)
+npm run test:e2e
 
 # Client lint and builds
 cd client && npm run lint && npm run build
 cd server && npm run build
-
-# E2E tests: not configured in this repository yet
 ```
 
 ---
