@@ -13,35 +13,9 @@ interface RelatedSystem {
   name: string;
 }
 
+import { validateFileList } from '../lib/attachmentValidation';
+
 const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH'];
-const ALLOWED_FILE_TYPES: Record<string, string> = {
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.png': 'image/png',
-  '.webp': 'image/webp',
-  '.pdf': 'application/pdf',
-};
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-
-function validateAttachments(files: FileList | null): string[] {
-  if (!files) return [];
-
-  const errors: string[] = [];
-  if (files.length > 5) {
-    errors.push('You can attach a maximum of 5 files.');
-  }
-  Array.from(files).forEach((file) => {
-    if (file.size > MAX_FILE_SIZE) {
-      errors.push(`File size exceeds 5 MB: "${file.name}".`);
-    }
-    const extensionStart = file.name.lastIndexOf('.');
-    const extension = extensionStart >= 0 ? file.name.slice(extensionStart).toLowerCase() : '';
-    if (ALLOWED_FILE_TYPES[extension] !== file.type.toLowerCase()) {
-      errors.push(`Unsupported file type: "${file.name}". Allowed: JPG, PNG, WEBP, PDF.`);
-    }
-  });
-  return errors;
-}
 
 export default function CreateTicket() {
   const { requester } = useRequester();
@@ -64,6 +38,12 @@ export default function CreateTicket() {
 
   // Load categories and related systems
   useEffect(() => {
+    if (!requester) {
+      setCategories([]);
+      setSystems([]);
+      return;
+    }
+
     apiFetch('/categories')
       .then(res => res.json())
       .then(data => setCategories(Array.isArray(data) ? data : []))
@@ -73,7 +53,7 @@ export default function CreateTicket() {
       .then(res => res.json())
       .then(data => setSystems(Array.isArray(data) ? data : []))
       .catch(() => setSystems([]));
-  }, []);
+  }, [requester]);
 
   const validate = (): { globalErrors: string[]; fields: Record<string, string> } => {
     const global: string[] = [];
@@ -109,7 +89,7 @@ export default function CreateTicket() {
       addFieldError('priority', 'Invalid priority selected.');
     }
 
-    validateAttachments(attachments).forEach((message) => addFieldError('attachments', message));
+    validateFileList(attachments).forEach((message) => addFieldError('attachments', message));
 
     return { globalErrors: global, fields };
   };
@@ -122,7 +102,7 @@ export default function CreateTicket() {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
-    const attachmentErrors = validateAttachments(selectedFiles);
+    const attachmentErrors = validateFileList(selectedFiles);
     setAttachments(selectedFiles);
     setTouched(prev => ({ ...prev, attachments: true }));
     setFieldErrors(prev => {

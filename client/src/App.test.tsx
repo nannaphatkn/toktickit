@@ -11,15 +11,18 @@ describe('App - Requester Access Guard & Dashboard', () => {
     } as unknown as Response);
   });
 
-  it('renders welcome screen prompting requester selection when unauthenticated', () => {
+  it('renders welcome screen prompting requester selection when unauthenticated', async () => {
     render(<App />);
     expect(screen.getByText(/Welcome to TokTickIT/i)).toBeInTheDocument();
     expect(
       screen.getByText(/Please select a Development Requester from the dropdown/i)
     ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: /Development Requester/i })).not.toBeDisabled();
+    });
   });
 
-  it('renders user welcome and action cards when a requester is selected', () => {
+  it('renders user welcome and action cards when a requester is selected', async () => {
     localStorage.setItem(
       'requester',
       JSON.stringify({
@@ -35,9 +38,12 @@ describe('App - Requester Access Guard & Dashboard', () => {
     expect(screen.getAllByText(/Create Ticket/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/My Tickets/i).length).toBeGreaterThanOrEqual(1);
     expect(localStorage.getItem('requesterId')).toBe('1');
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: /Development Requester/i })).not.toBeDisabled();
+    });
   });
 
-  it('rejects an inactive requester restored from localStorage', () => {
+  it('rejects an inactive requester restored from localStorage', async () => {
     localStorage.setItem(
       'requester',
       JSON.stringify({ id: 9, name: 'Inactive User', email: 'inactive@example.com', isActive: false })
@@ -47,6 +53,9 @@ describe('App - Requester Access Guard & Dashboard', () => {
     expect(screen.getByText(/Welcome to TokTickIT/i)).toBeInTheDocument();
     expect(localStorage.getItem('requester')).toBeNull();
     expect(localStorage.getItem('requesterId')).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: /Development Requester/i })).not.toBeDisabled();
+    });
   });
 
   it('clears a stored requester that is no longer returned as active', async () => {

@@ -47,10 +47,13 @@ export default function Navbar() {
             <RequesterSelector />
 
             {requester && (
-              <span className="text-white small d-none d-md-inline">
-                👤 {requester.name}
+              <span className="text-white small d-none d-md-inline-flex align-items-center gap-2">
+                <span className="requester-avatar" aria-hidden="true">
+                  {requester.name.charAt(0)}
+                </span>
+                <span>{requester.name}</span>
                 <button
-                  className="btn btn-sm btn-outline-light ms-2"
+                  className="btn btn-sm btn-outline-light ms-1"
                   onClick={clearRequester}
                   title="Switch Requester"
                   aria-label="Switch Requester"

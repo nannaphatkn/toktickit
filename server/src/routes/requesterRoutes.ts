@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../prisma';
+import { sendApiError } from '../http';
 
 const router = Router();
 
@@ -20,7 +21,7 @@ router.get('/', async (_req, res) => {
     res.json(requesters);
   } catch (error) {
     console.error('Error fetching requesters:', error);
-    res.status(500).json({ error: 'Internal server error', details: {} });
+    sendApiError(res, 500, 'Unexpected failure');
   }
 });
 

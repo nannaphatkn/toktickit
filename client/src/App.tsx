@@ -7,6 +7,7 @@ import { useRequester } from './contexts/requesterContextCore';
 import Navbar from './components/Navbar';
 import RequesterPrompt from './components/RequesterPrompt';
 import MyTickets from './pages/MyTickets';
+import TicketDetail from './pages/TicketDetail';
 
 function MainContent() {
   const { requester } = useRequester();
@@ -72,6 +73,7 @@ function App() {
               <Route path="/" element={<MainContent />} />
               <Route path="/create-ticket" element={<CreateTicket />} />
               <Route path="/my-tickets" element={<MyTickets />} />
+              <Route path="/tickets/:id" element={<TicketDetail />} />
             </Routes>
           </main>
         </div>

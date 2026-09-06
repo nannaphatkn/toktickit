@@ -43,23 +43,44 @@ const upload = multer({
   }
 });
 
+function sendUploadError(res: Response, error: unknown): void {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      sendApiError(res, 400, 'File size exceeds 5 MB limit', { code: error.code });
+      return;
+    }
+    if (error.code === 'LIMIT_FILE_COUNT' || error.code === 'LIMIT_UNEXPECTED_FILE') {
+      sendApiError(res, 400, 'Maximum 5 files allowed', { code: error.code });
+      return;
+    }
+    sendApiError(res, 400, error.message, { code: error.code });
+    return;
+  }
+
+  const message = error instanceof Error ? error.message : 'File upload error';
+  if (message.includes('Invalid file type')) {
+    sendApiError(res, 400, message, { code: 'INVALID_FILE_TYPE' });
+    return;
+  }
+  sendApiError(res, 400, message, { code: 'UPLOAD_ERROR' });
+}
+
 // Middleware to catch Multer errors and return 400 JSON per api-spec.md
 const handleUpload = (req: Request, res: Response, next: NextFunction) => {
-  upload.array('attachments', 5)(req, res, (err: any) => {
-    if (err) {
-      if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-          return sendApiError(res, 400, 'File size exceeds 5 MB limit', { code: err.code });
-        }
-        if (err.code === 'LIMIT_FILE_COUNT' || err.code === 'LIMIT_UNEXPECTED_FILE') {
-          return sendApiError(res, 400, 'Maximum 5 files allowed', { code: err.code });
-        }
-        return sendApiError(res, 400, err.message, { code: err.code });
-      }
-      if (err.message && err.message.includes('Invalid file type')) {
-        return sendApiError(res, 400, err.message, { code: 'INVALID_FILE_TYPE' });
-      }
-      return sendApiError(res, 400, err.message || 'File upload error', { code: 'UPLOAD_ERROR' });
+  upload.array('attachments', 5)(req, res, (error: unknown) => {
+    if (error) {
+      sendUploadError(res, error);
+      return;
+    }
+    next();
+  });
+};
+
+const handleSingleAttachmentUpload = (req: Request, res: Response, next: NextFunction) => {
+  upload.single('file')(req, res, (error: unknown) => {
+    if (error) {
+      sendUploadError(res, error);
+      return;
     }
     next();
   });
@@ -122,6 +143,8 @@ async function removeFiles(filePaths: string[]): Promise<void> {
 
 class QueryValidationError extends Error {}
 
+class AttachmentLimitError extends Error {}
+
 function queryString(req: Request, name: string): string | undefined {
   const value = req.query[name];
   if (value === undefined) return undefined;
@@ -158,7 +181,8 @@ router.get('/', requireActiveRequester, async (req: Request, res: Response): Pro
   try {
     const requesterId = res.locals.requesterId as number;
     const page = positiveInteger(queryString(req, 'page'), 'page', 1);
-    const limit = positiveInteger(queryString(req, 'limit'), 'limit', 10);
+    const limitParam = queryString(req, 'limit') ?? queryString(req, 'size');
+    const limit = positiveInteger(limitParam, 'limit', 10);
     if (limit > 50) {
       throw new QueryValidationError('limit must not exceed 50');
     }
@@ -237,6 +261,166 @@ router.get('/', requireActiveRequester, async (req: Request, res: Response): Pro
     }
 
     console.error('Error listing tickets:', error);
+    sendApiError(res, 500, 'Unexpected failure');
+  }
+});
+
+// GET /api/tickets/:id - Retrieve a ticket owned by the active requester
+router.get('/:id', requireActiveRequester, async (req: Request, res: Response): Promise<void> => {
+  let ticketId: number;
+  try {
+    ticketId = positiveInteger(req.params.id, 'id');
+  } catch (error) {
+    if (error instanceof QueryValidationError) {
+      sendApiError(res, 400, 'Invalid ticket id', { field: 'id' });
+      return;
+    }
+    throw error;
+  }
+
+  try {
+    const requesterId = res.locals.requesterId as number;
+    const ownership = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+      select: { requesterId: true },
+    });
+
+    if (!ownership) {
+      sendApiError(res, 404, 'Ticket not found');
+      return;
+    }
+
+    if (ownership.requesterId !== requesterId) {
+      sendApiError(res, 403, 'You do not have access to this ticket');
+      return;
+    }
+
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+      select: {
+        id: true,
+        ticketNumber: true,
+        summary: true,
+        description: true,
+        requestedPriority: true,
+        itPriority: true,
+        currentStatus: true,
+        category: { select: { id: true, name: true } },
+        relatedSystem: { select: { id: true, name: true } },
+        requester: { select: { id: true, name: true } },
+        attachments: {
+          orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+          select: {
+            id: true,
+            originalName: true,
+            fileType: true,
+            fileSize: true,
+            isRemoved: true,
+            removalReason: true,
+            removedAt: true,
+            createdAt: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!ticket) {
+      sendApiError(res, 404, 'Ticket not found');
+      return;
+    }
+
+    res.json(ticket);
+  } catch (error) {
+    console.error('Error retrieving ticket:', error);
+    sendApiError(res, 500, 'Unexpected failure');
+  }
+});
+
+// POST /api/tickets/:id/attachments - Add one attachment to an existing ticket
+router.post('/:id/attachments', requireActiveRequester, handleSingleAttachmentUpload, async (req: Request, res: Response): Promise<void> => {
+  let ticketId: number;
+  try {
+    ticketId = positiveInteger(req.params.id, 'id');
+  } catch (error) {
+    if (error instanceof QueryValidationError) {
+      sendApiError(res, 400, 'Invalid ticket id', { field: 'id' });
+      return;
+    }
+    throw error;
+  }
+
+  const file = req.file;
+  if (!file) {
+    sendApiError(res, 400, 'An attachment file is required', { field: 'file' });
+    return;
+  }
+
+  const persistedFilePaths: string[] = [];
+  try {
+    const requesterId = res.locals.requesterId as number;
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: ticketId },
+      select: { requesterId: true },
+    });
+
+    if (!ticket) {
+      sendApiError(res, 404, 'Ticket not found');
+      return;
+    }
+    if (ticket.requesterId !== requesterId) {
+      sendApiError(res, 403, 'You do not have access to this ticket');
+      return;
+    }
+
+    const attachment = await prisma.$transaction(async (tx) => {
+      // Lock the ticket row so concurrent uploads cannot pass the active-count check together.
+      await tx.$queryRaw<Array<{ id: number }>>`
+        SELECT "id" FROM "Ticket" WHERE "id" = ${ticketId} FOR UPDATE
+      `;
+      const activeCount = await tx.attachment.count({
+        where: { ticketId, isRemoved: false },
+      });
+      if (activeCount >= 5) {
+        throw new AttachmentLimitError('Maximum 5 active attachments allowed');
+      }
+
+      const extension = path.extname(file.originalname).toLowerCase();
+      const fileName = `${randomUUID()}${extension}`;
+      const filePath = path.join(uploadDir, fileName);
+      await fs.promises.writeFile(filePath, file.buffer, { flag: 'wx' });
+      persistedFilePaths.push(filePath);
+
+      return tx.attachment.create({
+        data: {
+          ticketId,
+          fileName,
+          originalName: safeOriginalName(file.originalname),
+          fileType: file.mimetype,
+          fileSize: file.size,
+        },
+        select: {
+          id: true,
+          originalName: true,
+          fileType: true,
+          fileSize: true,
+          isRemoved: true,
+          removalReason: true,
+          removedAt: true,
+          createdAt: true,
+        },
+      });
+    });
+
+    res.status(201).json(attachment);
+  } catch (error) {
+    await removeFiles(persistedFilePaths);
+    if (error instanceof AttachmentLimitError) {
+      sendApiError(res, 400, error.message, { field: 'file' });
+      return;
+    }
+    console.error('Error adding ticket attachment:', error);
     sendApiError(res, 500, 'Unexpected failure');
   }
 });
