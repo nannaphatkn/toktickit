@@ -5,7 +5,22 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
  * from localStorage to every API request.
  */
 export async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
-  const requesterId = localStorage.getItem('requesterId');
+  let requesterId = localStorage.getItem('requesterId');
+
+  // The context persists both keys for compatibility. Recover the ID from the
+  // canonical requester object if older storage contains only that value.
+  if (!requesterId) {
+    try {
+      const storedRequester = JSON.parse(localStorage.getItem('requester') ?? 'null');
+      if (Number.isSafeInteger(storedRequester?.id) && storedRequester.id > 0 && storedRequester.isActive === true) {
+        requesterId = String(storedRequester.id);
+        localStorage.setItem('requesterId', requesterId);
+      }
+    } catch {
+      // Invalid persisted state is handled by RequesterProvider; public API
+      // requests can continue without an identity header.
+    }
+  }
 
   const headers = new Headers(options.headers);
 

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -6,6 +6,7 @@ import { prisma } from './prisma';
 import requesterRoutes from './routes/requesterRoutes';
 import relatedSystemRoutes from './routes/relatedSystemRoutes';
 import ticketRoutes from './routes/ticketRoutes';
+import categoryRoutes from './routes/categoryRoutes';
 
 dotenv.config();
 
@@ -31,15 +32,11 @@ app.get('/api/health', (req, res) => {
 app.use('/api/requesters', requesterRoutes);
 app.use('/api/related-systems', relatedSystemRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/categories', categoryRoutes);
 
-app.get('/api/categories', async (req, res) => {
-  try {
-    const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
-    res.json(categories);
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('Unhandled API error:', error);
+  res.status(500).json({ error: 'Unexpected failure', details: {} });
 });
 
 if (process.env.NODE_ENV !== 'test') {

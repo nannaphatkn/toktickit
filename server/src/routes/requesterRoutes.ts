@@ -20,7 +20,7 @@ router.get('/', async (_req, res) => {
     res.json(requesters);
   } catch (error) {
     console.error('Error fetching requesters:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: {} });
   }
 });
 

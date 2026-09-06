@@ -1,33 +1,43 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
+import { RequesterContext, type Requester } from './requesterContextCore';
 
-export interface Requester {
-  id: number;
-  name: string;
-  email: string;
-  isActive: boolean;
+function restoreRequester(): Requester | null {
+  try {
+    const saved = localStorage.getItem('requester');
+    if (!saved) return null;
+
+    const candidate: unknown = JSON.parse(saved);
+    if (
+      typeof candidate !== 'object' ||
+      candidate === null ||
+      !('id' in candidate) ||
+      typeof candidate.id !== 'number' ||
+      !Number.isSafeInteger(candidate.id) ||
+      candidate.id <= 0 ||
+      !('name' in candidate) ||
+      typeof candidate.name !== 'string' ||
+      !('email' in candidate) ||
+      typeof candidate.email !== 'string' ||
+      !('isActive' in candidate) ||
+      candidate.isActive !== true
+    ) {
+      throw new Error('Invalid stored requester');
+    }
+
+    const requester = candidate as Requester;
+    localStorage.setItem('requesterId', String(requester.id));
+    return requester;
+  } catch {
+    localStorage.removeItem('requester');
+    localStorage.removeItem('requesterId');
+    return null;
+  }
 }
-
-interface RequesterContextType {
-  requester: Requester | null;
-  setRequester: (requester: Requester | null) => void;
-  clearRequester: () => void;
-}
-
-const RequesterContext = createContext<RequesterContextType | undefined>(undefined);
 
 export function RequesterProvider({ children }: { children: ReactNode }) {
-  const [requester, setRequesterState] = useState<Requester | null>(() => {
-    try {
-      const saved = localStorage.getItem('requester');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      localStorage.removeItem('requester');
-      localStorage.removeItem('requesterId');
-      return null;
-    }
-  });
+  const [requester, setRequesterState] = useState<Requester | null>(restoreRequester);
 
-  const setRequester = (r: Requester | null) => {
+  const setRequester = useCallback((r: Requester | null) => {
     setRequesterState(r);
     if (r) {
       localStorage.setItem('requester', JSON.stringify(r));
@@ -36,21 +46,13 @@ export function RequesterProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('requester');
       localStorage.removeItem('requesterId');
     }
-  };
+  }, []);
 
-  const clearRequester = () => setRequester(null);
+  const clearRequester = useCallback(() => setRequester(null), [setRequester]);
 
   return (
     <RequesterContext.Provider value={{ requester, setRequester, clearRequester }}>
       {children}
     </RequesterContext.Provider>
   );
-}
-
-export function useRequester(): RequesterContextType {
-  const context = useContext(RequesterContext);
-  if (!context) {
-    throw new Error('useRequester must be used within a RequesterProvider');
-  }
-  return context;
 }

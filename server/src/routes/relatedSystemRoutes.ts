@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
     res.json(systems);
   } catch (error) {
     console.error('Error fetching related systems:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: {} });
   }
 });
 
