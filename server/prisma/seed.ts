@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Priority, TicketStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -30,54 +30,172 @@ async function main() {
   console.log('Start seeding...');
 
   // Seed Categories
+  const categoryMap = new Map<string, number>();
   for (const category of categories) {
-    const existingCategory = await prisma.category.findUnique({
+    const created = await prisma.category.upsert({
       where: { name: category.name },
+      update: category,
+      create: category,
     });
-
-    if (!existingCategory) {
-      const created = await prisma.category.create({
-        data: category,
-      });
-      console.log(`Created category: ${created.name}`);
-    } else {
-      console.log(`Category already exists: ${existingCategory.name}`);
-    }
+    categoryMap.set(created.name, created.id);
+    console.log(`Seeded category: ${created.name}`);
   }
 
   // Seed Requesters
+  const requesterMap = new Map<string, number>();
   for (const requester of requesters) {
-    const existingRequester = await prisma.requesterUser.findUnique({
+    const created = await prisma.requesterUser.upsert({
       where: { email: requester.email },
+      update: requester,
+      create: requester,
     });
-
-    if (!existingRequester) {
-      const created = await prisma.requesterUser.create({
-        data: requester,
-      });
-      console.log(`Created requester: ${created.name} (active: ${created.isActive})`);
-    } else {
-      console.log(`Requester already exists: ${existingRequester.name}`);
-    }
+    requesterMap.set(created.name, created.id);
+    console.log(`Seeded requester: ${created.name} (ID: ${created.id})`);
   }
 
   // Seed Related Systems
+  const systemMap = new Map<string, number>();
   for (const system of relatedSystems) {
-    const existingSystem = await prisma.relatedSystem.findUnique({
+    const created = await prisma.relatedSystem.upsert({
       where: { name: system.name },
+      update: system,
+      create: system,
     });
+    systemMap.set(created.name, created.id);
+    console.log(`Seeded related system: ${created.name}`);
+  }
 
-    if (!existingSystem) {
-      const created = await prisma.relatedSystem.create({
-        data: system,
+  // Seed Sample Tickets for all active requesters
+  const sampleTickets = [
+    // David Kim
+    {
+      ticketNumber: 'TKT-2026-000001',
+      summary: 'Cannot connect to Corporate VPN from remote location',
+      description: 'Whenever I try connecting to the VPN using Cisco AnyConnect, it returns authentication timeout error. I verified my password is correct.',
+      categoryName: 'Network',
+      systemName: 'Corporate VPN',
+      requesterName: 'David Kim',
+      requestedPriority: Priority.HIGH,
+      currentStatus: TicketStatus.NEW,
+    },
+    {
+      ticketNumber: 'TKT-2026-000002',
+      summary: 'Dual Monitor display flickering on docking station',
+      description: 'My secondary Dell 27 inch monitor flickers black every few minutes when connected to the USB-C dock.',
+      categoryName: 'Hardware',
+      systemName: 'Desktop Monitor/Peripherals',
+      requesterName: 'David Kim',
+      requestedPriority: Priority.MEDIUM,
+      currentStatus: TicketStatus.IN_PROGRESS,
+    },
+    {
+      ticketNumber: 'TKT-2026-000003',
+      summary: 'Request access to ERP Accounting Module',
+      description: 'Need read and write access to the Q3 financial reports inside the ERP system for audit preparation.',
+      categoryName: 'Account and Access',
+      systemName: 'ERP System',
+      requesterName: 'David Kim',
+      requestedPriority: Priority.HIGH,
+      currentStatus: TicketStatus.RESOLVED,
+    },
+
+    // Jennifer Anderson
+    {
+      ticketNumber: 'TKT-2026-000004',
+      summary: 'Cannot login to Outlook email client after password update',
+      description: 'I updated my domain password yesterday and now my desktop Outlook app keeps prompting for password endlessly.',
+      categoryName: 'Account and Access',
+      systemName: 'Email/Outlook',
+      requesterName: 'Jennifer Anderson',
+      requestedPriority: Priority.HIGH,
+      currentStatus: TicketStatus.NEW,
+    },
+    {
+      ticketNumber: 'TKT-2026-000005',
+      summary: 'Campus Wi-Fi keeps disconnecting on 3rd floor',
+      description: 'Wi-Fi signal drops frequently near meeting room B on the 3rd floor. Requires re-authenticating every 15 minutes.',
+      categoryName: 'Network',
+      systemName: 'Campus Wi-Fi',
+      requesterName: 'Jennifer Anderson',
+      requestedPriority: Priority.MEDIUM,
+      currentStatus: TicketStatus.IN_PROGRESS,
+    },
+    {
+      ticketNumber: 'TKT-2026-000006',
+      summary: 'Software installation request: Figma Desktop App',
+      description: 'Requesting IT approval and installation of Figma Desktop client for UI mockups and design reviews.',
+      categoryName: 'Software',
+      systemName: 'Corporate Laptop',
+      requesterName: 'Jennifer Anderson',
+      requestedPriority: Priority.LOW,
+      currentStatus: TicketStatus.RESOLVED,
+    },
+
+    // Michael Chen
+    {
+      ticketNumber: 'TKT-2026-000007',
+      summary: 'Laptop trackpad not responding intermittently',
+      description: 'My corporate MacBook trackpad freezes randomly for 10-15 seconds before working again.',
+      categoryName: 'Hardware',
+      systemName: 'Corporate Laptop',
+      requesterName: 'Michael Chen',
+      requestedPriority: Priority.MEDIUM,
+      currentStatus: TicketStatus.NEW,
+    },
+    {
+      ticketNumber: 'TKT-2026-000008',
+      summary: 'ERP System exporting reports with encoding errors',
+      description: 'CSV export from ERP contains broken special characters when opened in Excel.',
+      categoryName: 'Software',
+      systemName: 'ERP System',
+      requesterName: 'Michael Chen',
+      requestedPriority: Priority.HIGH,
+      currentStatus: TicketStatus.IN_PROGRESS,
+    },
+
+    // Sarah Jenkins
+    {
+      ticketNumber: 'TKT-2026-000009',
+      summary: 'Need reset for expired domain account password',
+      description: 'My domain password expired while on leave. Unable to unlock my account remotely.',
+      categoryName: 'Account and Access',
+      systemName: 'Email/Outlook',
+      requesterName: 'Sarah Jenkins',
+      requestedPriority: Priority.HIGH,
+      currentStatus: TicketStatus.CLOSED,
+    },
+  ];
+
+  console.log('Seeding tickets...');
+  for (const t of sampleTickets) {
+    const requesterId = requesterMap.get(t.requesterName);
+    const categoryId = categoryMap.get(t.categoryName);
+    const relatedSystemId = systemMap.get(t.systemName);
+
+    if (requesterId && categoryId && relatedSystemId) {
+      const existing = await prisma.ticket.findUnique({
+        where: { ticketNumber: t.ticketNumber },
       });
-      console.log(`Created related system: ${created.name}`);
-    } else {
-      console.log(`Related system already exists: ${existingSystem.name}`);
+
+      if (!existing) {
+        const created = await prisma.ticket.create({
+          data: {
+            ticketNumber: t.ticketNumber,
+            summary: t.summary,
+            description: t.description,
+            categoryId,
+            relatedSystemId,
+            requesterId,
+            requestedPriority: t.requestedPriority,
+            currentStatus: t.currentStatus,
+          },
+        });
+        console.log(`Created ticket #${created.ticketNumber} for ${t.requesterName}`);
+      }
     }
   }
 
-  console.log('Seeding finished.');
+  console.log('Seeding finished successfully.');
 }
 
 main()

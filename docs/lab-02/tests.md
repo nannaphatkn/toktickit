@@ -20,6 +20,22 @@
 | **T‑09** | UI – Loading / Empty states | Navigate to My Tickets when none exist | UI displays friendly empty‑state message with illustration |
 | **T‑10** | Accessibility – Keyboard navigation | Tab through Create Ticket form fields | Focus order follows visual order, all controls reachable via keyboard |
 
+## 2b️⃣ Business Rule → Test Case Traceability Matrix
+
+| Business Rule | Description | Covered By |
+|---|---|---|
+| **BR-01** | Ticket Number is unique and auto-generated as `TKT-YYYY-XXXXXX` | `tickets.test.ts` (TC: creates ticket with unique number); `e2e/requester-ticket-flow.spec.ts` (AC-01 verifies `TKT-\d{4}-\d{6}` pattern) |
+| **BR-02** | New Ticket starts with status `NEW` | `tickets.test.ts` (TC: verifies `currentStatus: NEW` on creation); `my-tickets.api.test.ts` (seed data confirms NEW status) |
+| **BR-03** | Lab 2 uses Development Requester selector (not real auth) | `App.test.tsx` (TC: renders RequesterSelector); `e2e/requester-ticket-flow.spec.ts` (AC-02 selects requester from dropdown) |
+| **BR-04** | Summary required: 10–150 characters | `tickets.test.ts` (TC: rejects summary < 10 and > 150 chars); `CreateTicket.test.tsx` (inline validation error) |
+| **BR-05** | Description required: 20–1000 characters | `tickets.test.ts` (TC: rejects description < 20 and > 1000 chars); `CreateTicket.test.tsx` (inline validation error) |
+| **BR-06** | Attachments: JPG/PNG/WEBP/PDF only, ≤ 5 MB per file | `attachments.api.test.ts` (TC: unsupported type → 400, oversized → 400); `e2e` (T-04 & T-08: validates `.exe` and oversized PDF) |
+| **BR-07** | Maximum 5 active attachments per Ticket | `attachments.api.test.ts` (TC: 6th upload rejected with 400 ATTACHMENT_LIMIT); `tickets.test.ts` (TC: rollback if over limit) |
+| **BR-08** | Attachment removal = soft-remove only (metadata kept, file marked) | `attachments.api.test.ts` (TC: DELETE sets `isRemoved=true`, `removedAt` and `removalReason`); `ticket-detail.api.test.ts` (TC: verifies flags) |
+| **BR-09** | Removed files are not downloadable | `attachments.api.test.ts` (TC: GET `/download` on removed attachment → **410 Gone**); `e2e` (T-06 verifies badge shown) |
+| **BR-10** | Only active Requesters can be selected | `RequesterSelector.tsx` filters `isActive:true`; `requireActiveRequester.ts` middleware returns 401 for inactive; `requesters.test.ts` |
+| **BR-11** | Attachment upload failure must rollback ticket creation | `tickets.test.ts` (TC: simulates write failure → ticket not persisted); transaction logic in `ticketRoutes.ts` |
+
 ## 3️⃣ Implemented Test Files
 | File | Purpose |
 |------|---------|
