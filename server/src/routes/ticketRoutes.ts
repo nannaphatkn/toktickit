@@ -307,7 +307,7 @@ router.get('/:id', requireActiveRequester, async (req: Request, res: Response): 
         currentStatus: true,
         category: { select: { id: true, name: true } },
         relatedSystem: { select: { id: true, name: true } },
-        requester: { select: { id: true, name: true } },
+        requester: { select: { id: true, fullName: true, email: true } },
         attachments: {
           orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
           select: {

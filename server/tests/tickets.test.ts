@@ -17,10 +17,10 @@ function uploadFileNames(): string[] {
 }
 
 beforeAll(async () => {
-  const requester = await prisma.requesterUser.findFirst({ where: { isActive: true } });
+  const requester = await prisma.user.findFirst({ where: { isActive: true } });
   if (requester) requesterId = requester.id;
 
-  const inactiveRequester = await prisma.requesterUser.findFirst({ where: { isActive: false } });
+  const inactiveRequester = await prisma.user.findFirst({ where: { isActive: false } });
   if (inactiveRequester) inactiveRequesterId = inactiveRequester.id;
 
   const category = await prisma.category.findFirst();
@@ -108,7 +108,7 @@ describe('Ticket API Endpoints', () => {
     ['description above maximum', 'A valid ticket summary', 'D'.repeat(1001), 'VALID', 'VALID', 'MEDIUM'],
     ['invalid category', 'A valid ticket summary', 'A description that is comfortably longer than twenty characters.', '0', 'VALID', 'MEDIUM'],
     ['invalid related system', 'A valid ticket summary', 'A description that is comfortably longer than twenty characters.', 'VALID', '0', 'MEDIUM'],
-    ['invalid priority', 'A valid ticket summary', 'A description that is comfortably longer than twenty characters.', 'VALID', 'VALID', 'URGENT'],
+    ['invalid priority', 'A valid ticket summary', 'A description that is comfortably longer than twenty characters.', 'VALID', 'VALID', 'INVALID_PRIORITY'],
   ])('rejects %s', async (_caseName, testSummary, testDescription, testCategoryId, testRelatedSystemId, testPriority) => {
     const res = await request(app)
       .post('/api/tickets')

@@ -16,7 +16,7 @@ export async function requireActiveRequester(req: Request, res: Response, next: 
   }
 
   try {
-    const requester = await prisma.requesterUser.findUnique({
+    const requester = await prisma.user.findUnique({
       where: { id: requesterId },
       select: { isActive: true },
     });
