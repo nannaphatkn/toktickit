@@ -22,11 +22,11 @@ const uploadDir = path.resolve(__dirname, '../../uploads');
 
 beforeAll(async () => {
   const [requesterA, requesterB, category, relatedSystem] = await Promise.all([
-    prisma.requesterUser.create({
-      data: { name: 'Ticket Detail Requester A', email: requesterEmails[0], isActive: true },
+    prisma.user.create({
+      data: { fullName: 'Ticket Detail Requester A', email: requesterEmails[0], isActive: true, passwordHash: 'test' },
     }),
-    prisma.requesterUser.create({
-      data: { name: 'Ticket Detail Requester B', email: requesterEmails[1], isActive: true },
+    prisma.user.create({
+      data: { fullName: 'Ticket Detail Requester B', email: requesterEmails[1], isActive: true, passwordHash: 'test' },
     }),
     prisma.category.findFirst({ orderBy: { id: 'asc' } }),
     prisma.relatedSystem.findFirst({ orderBy: { id: 'asc' } }),
@@ -94,7 +94,7 @@ afterAll(async () => {
   });
   await prisma.attachment.deleteMany({ where: { ticketId: { in: [ticketId, otherTicketId].filter(Boolean) } } });
   await prisma.ticket.deleteMany({ where: { id: { in: [ticketId, otherTicketId].filter(Boolean) } } });
-  await prisma.requesterUser.deleteMany({ where: { email: { in: requesterEmails } } });
+  await prisma.user.deleteMany({ where: { email: { in: requesterEmails } } });
   await Promise.all(attachments.map(({ fileName }) => fs.promises.unlink(path.join(uploadDir, fileName)).catch((error: NodeJS.ErrnoException) => {
     if (error.code !== 'ENOENT') throw error;
   })));
