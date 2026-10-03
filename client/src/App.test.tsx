@@ -1,74 +1,57 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import App from './App';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import * as apiModule from './lib/api';
 
-describe('App - Requester Access Guard & Dashboard', () => {
+describe('App - Lab 03 Authentication Guard & Navigation', () => {
   beforeEach(() => {
+    window.history.pushState(null, '', '/');
     localStorage.clear();
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => [],
+    vi.restoreAllMocks();
+  });
+
+  it('redirects to login screen when unauthenticated', async () => {
+    vi.spyOn(apiModule, 'apiFetch').mockResolvedValue({
+      ok: false,
+      json: async () => ({ error: 'Unauthorized' }),
     } as unknown as Response);
+
+    render(<App />);
+    expect(screen.getByText(/Sign in to your account/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email address/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
   });
 
-  it('renders welcome screen prompting requester selection when unauthenticated', async () => {
-    render(<App />);
-    expect(screen.getByText(/Welcome to TokTickIT/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/Please select a Development Requester from the dropdown/i)
-    ).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: /Development Requester/i })).not.toBeDisabled();
+  it('renders user welcome dashboard when authenticated', async () => {
+    const mockUser = {
+      id: 1,
+      fullName: 'Jennifer Anderson',
+      email: 'jennifer.anderson@toktickit.com',
+      role: 'REQUESTER',
+      mustChangePassword: false,
+    };
+
+    localStorage.setItem('toktickit_token', 'mock-valid-token');
+    localStorage.setItem('toktickit_user', JSON.stringify(mockUser));
+
+    vi.spyOn(apiModule, 'apiFetch').mockImplementation((path: string) => {
+      if (path.includes('/auth/me')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ user: mockUser }),
+        } as unknown as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ tickets: [] }),
+      } as unknown as Response);
     });
-  });
-
-  it('renders user welcome and action cards when a requester is selected', async () => {
-    localStorage.setItem(
-      'requester',
-      JSON.stringify({
-        id: 1,
-        name: 'Jennifer Anderson',
-        email: 'jennifer.a@company.com',
-        isActive: true,
-      })
-    );
-
-    render(<App />);
-    expect(screen.getByText(/Welcome, Jennifer Anderson!/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Create Ticket/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/My Tickets/i).length).toBeGreaterThanOrEqual(1);
-    expect(localStorage.getItem('requesterId')).toBe('1');
-    await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: /Development Requester/i })).not.toBeDisabled();
-    });
-  });
-
-  it('rejects an inactive requester restored from localStorage', async () => {
-    localStorage.setItem(
-      'requester',
-      JSON.stringify({ id: 9, name: 'Inactive User', email: 'inactive@example.com', isActive: false })
-    );
-
-    render(<App />);
-    expect(screen.getByText(/Welcome to TokTickIT/i)).toBeInTheDocument();
-    expect(localStorage.getItem('requester')).toBeNull();
-    expect(localStorage.getItem('requesterId')).toBeNull();
-    await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: /Development Requester/i })).not.toBeDisabled();
-    });
-  });
-
-  it('clears a stored requester that is no longer returned as active', async () => {
-    localStorage.setItem(
-      'requester',
-      JSON.stringify({ id: 1, name: 'Former User', email: 'former@example.com', isActive: true })
-    );
 
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Welcome to TokTickIT/i)).toBeInTheDocument();
-      expect(localStorage.getItem('requester')).toBeNull();
+      expect(screen.getByText(/Welcome, Jennifer Anderson!/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Create Ticket/i).length).toBeGreaterThanOrEqual(1);
     });
   });
 });
