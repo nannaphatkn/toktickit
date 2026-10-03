@@ -22,7 +22,7 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -47,6 +47,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(data.user);
             localStorage.setItem('toktickit_user', JSON.stringify(data.user));
             localStorage.setItem('requesterId', String(data.user.id));
+            localStorage.setItem('requester', JSON.stringify({
+              id: data.user.id,
+              name: data.user.fullName,
+              email: data.user.email,
+              isActive: true,
+            }));
           } else {
             logout();
           }
@@ -77,6 +83,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('toktickit_token', data.token);
       localStorage.setItem('toktickit_user', JSON.stringify(data.user));
       localStorage.setItem('requesterId', String(data.user.id));
+      localStorage.setItem('requester', JSON.stringify({
+        id: data.user.id,
+        name: data.user.fullName,
+        email: data.user.email,
+        isActive: true,
+      }));
 
       return {
         success: true,
@@ -123,6 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('toktickit_token');
     localStorage.removeItem('toktickit_user');
     localStorage.removeItem('requesterId');
+    localStorage.removeItem('requester');
     apiFetch('/auth/logout', { method: 'POST' }).catch(() => {});
   };
 
