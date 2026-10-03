@@ -58,6 +58,8 @@ model User {
   assignedTickets    Ticket[]        @relation("AssignedTickets")
   publicComments     PublicComment[]
   internalNotes      InternalNote[]
+
+  @@index([role, isActive])
 }
 
 model RelatedSystem {
