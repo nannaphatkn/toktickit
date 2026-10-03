@@ -9,6 +9,10 @@ import ticketRoutes from './routes/ticketRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import attachmentRoutes from './routes/attachmentRoutes';
 import referenceDataRoutes from './routes/referenceDataRoutes';
+import authRoutes from './routes/authRoutes';
+import staffRoutes from './routes/staffRoutes';
+import commentsRoutes from './routes/commentsRoutes';
+import adminRoutes from './routes/adminRoutes';
 
 dotenv.config();
 
@@ -31,8 +35,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.use('/api/auth', authRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/requesters', requesterRoutes);
 app.use('/api/related-systems', relatedSystemRoutes);
+app.use('/api/tickets', commentsRoutes); // Comments & Notes routes on /api/tickets/:id/...
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/attachments', attachmentRoutes);
