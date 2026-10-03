@@ -1,7 +1,7 @@
 # Lab 03 Reviewer Checklist & Integration Record
 
 ## Reviewer Information
-- **Reviewer:** Nannaphat K. (`nannaphatkn`)
+- **Reviewer:** Patitta P. (`Patitta-23`)
 - **Repository:** `toktickit`
 - **Branch:** `lab3-staging` -> `main`
 
