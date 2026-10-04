@@ -81,15 +81,30 @@ Full review details and verification records are documented in [`docs/lab-03/rev
 | **PR #33** | `lab3-staging` | **Issue #31:** Frontend Pages & Tests | *"Excellent"* | *"> Excellent\nwoww thanks for review"* | Merged ✅ |
 | **PR #36** | `main` | **Official Release:** Lab 03 | Review requested from `Patitta-23` on GitHub | Waiting for reviewer merge via GitHub UI | Open 🚀 |
 
-#### 1.6.2 Peer Reviews Conducted (nannaphatkn ➔ Patitta-23 / LAB)
+#### 1.6.2 Peer Reviews Conducted (My Code Reviews on Patitta-23 / LAB)
+
+As part of mutual peer review governance, I conducted code reviews on partner repository [`https://github.com/Patitta-23/LAB`](https://github.com/Patitta-23/LAB) across all Lab 3 feature PRs:
+
+![Patitta-23 Closed PRs List](../../artifacts/lab-03/screenshots/00-peer-review-friend-prs-list.png)
 
 | PR # | Repository | Feature / Scope | My Review Decision (`nannaphatkn`) | Partner (`Patitta-23`) Reply | Status |
 |------|------------|-----------------|-----------------------------------|------------------------------|--------|
-| **PR #34** | `Patitta-23/LAB` | Lab-03 Spec DD Baseline | *"Lgtm"* (Approved ✅) | *"> Lgtm\nThanks"* | Merged ✅ |
-| **PR #35** | `Patitta-23/LAB` | Authentication System & RBAC | *"Greatest"* (Approved ✅) | *"> Greatest\nThanks"* | Merged ✅ |
-| **PR #36** | `Patitta-23/LAB` | IT Staff Ticket Queue & Detail | *"code looks good as you"* (Approved ✅) | *"> code looks good as you\nTq"* | Merged ✅ |
-| **PR #37** | `Patitta-23/LAB` | Admin User Management | *"Approve khaa"* (Approved ✅) | *"> Approve khaa\nTq"* | Merged ✅ |
-| **PR #38** | `Patitta-23/LAB` | Requester Regression & Comments | *"Good good good"* (Approved ✅) | *"> Good good good\nThanks"* | Merged ✅ |
+| **PR #34** | `Patitta-23/LAB` | Lab-03 Spec DD Baseline | *"Lgtm"* (Approved ✅ at 2026-10-04T04:36:17Z) | *"> Lgtm\nThanks"* | Merged ✅ |
+| **PR #35** | `Patitta-23/LAB` | Authentication System & RBAC | *"Greatest"* (Approved ✅ at 2026-10-04T04:39:20Z) | *"> Greatest\nThanks"* | Merged ✅ |
+| **PR #36** | `Patitta-23/LAB` | IT Staff Ticket Queue & Detail | *"code looks good as you"* (Approved ✅ at 2026-10-04T04:50:05Z) | *"> code looks good as you\nTq"* | Merged ✅ |
+| **PR #37** | `Patitta-23/LAB` | Admin User Management | *"Approve khaa"* (Approved ✅ at 2026-10-04T04:52:51Z) | *"> Approve khaa\nTq"* | Merged ✅ |
+| **PR #38** | `Patitta-23/LAB` | Requester Regression & Comments | *"Good good good"* (Approved ✅ at 2026-10-04T04:59:38Z) | *"> Good good good\nThanks"* | Merged ✅ |
+
+##### Review Evidence on Partner's Repository:
+
+**PR #36 (IT Staff Queue & Ticket Detail):** Verified BR-07, BR-09, BR-10, and verified that internal notes are not leaked to Requester API endpoints before approving changes and merging into `Patitta-23/lab3-staging`:
+
+![Review Approval on Patitta-23 PR #36](../../artifacts/lab-03/screenshots/00-peer-review-friend-pr36-approval.png)
+
+**PR #37 (Admin User Management):** Verified duplicate email rejection (409), password reset flow (`mustChangePassword: true`), and IT Staff restriction (403) before approving changes:
+
+![Review Approval on Patitta-23 PR #37](../../artifacts/lab-03/screenshots/00-peer-review-friend-pr37-approval.png)
+
 
 #### 1.6.3 Reviewer Verification Checklist Summary
 
