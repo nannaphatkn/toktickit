@@ -2,7 +2,7 @@
 **Authentication, RBAC, IT Staff Operations & Administration (Spec-Driven & Test-Driven Development)**
 
 **Course:** Software Engineering (CPE 334)  
-**Student Name:** Janinee (`nannaphatkn`)  
+**Student Name:** Nannaphat Kaenphanao (`nannaphatkn`)  
 **Reviewer Partner Name:** Patita Dansikaew (Student ID: 67070505211, GitHub: [`Patitta-23`](https://github.com/Patitta-23))  
 **Repository:** [https://github.com/nannaphatkn/toktickit](https://github.com/nannaphatkn/toktickit)  
 **Integration Workflow:** Feature branches ➔ `lab3-staging` ➔ `main`  
@@ -46,23 +46,32 @@ All commits follow Conventional Commits guidelines:
 - `test(e2e): configure test:e2e to run lab-03 test suite`
 - `docs(lab3): record real peer reviews from GitHub and complete ai-use log`
 
-### 1.3 Pull Request List & Merge History
+### 1.3 Git Network Graph & Branch Integration
+Below is the GitHub Network Graph (`https://github.com/nannaphatkn/toktickit/network`) showing feature branches (`feature/lab3-spec-docs`, `feature/lab3-db-migration`, `feature/lab3-server-apis`, `feature/lab3-frontend`) cleanly integrating into `lab3-staging` and staging for release branch `main`:
+
+![Git Network Graph](../../artifacts/lab-03/screenshots/00-git-network-graph.png)
+
+### 1.4 Pull Request List & Merge History
 All Lab 3 feature PRs were reviewed and merged cleanly into `lab3-staging` before opening the final release PR to `main`:
 
 ![GitHub Pull Requests List](../../artifacts/lab-03/screenshots/00-github-prs-list.png)
 
 ![GitHub PR Approval Evidence](../../artifacts/lab-03/screenshots/00-github-pr-approved.png)
 
-### 1.4 Kanban Board & Issue Progression
-Task progression followed our GitHub Project Kanban board across standard states (`Backlog`, `Specified`, `Started`, `PR Review`, `Done`):
+### 1.5 Kanban Board & Issue Progression
+Task progression was tracked transparently using the GitHub Project Kanban board across standard states (`Backlog`, `Specified`, `Started`, `PR Review`, `Fixing`, `Done`):
 
 ![GitHub Kanban Board](../../artifacts/lab-03/screenshots/00-kanban-board.png)
 
-### 1.5 Peer Reviews & Collaborative Governance
+### 1.6 Peer Reviews & Collaborative Governance (`reviewer.md`)
 
-As recorded in [`docs/lab-03/reviewer.md`](https://github.com/nannaphatkn/toktickit/blob/lab3-staging/docs/lab-03/reviewer.md):
+Full review details and verification records are documented in [`docs/lab-03/reviewer.md`](https://github.com/nannaphatkn/toktickit/blob/lab3-staging/docs/lab-03/reviewer.md):
 
-#### 1.5.1 Peer Reviews Received (Patitta-23 ➔ nannaphatkn)
+- **Student Name:** Nannaphat Kaenphanao (`nannaphatkn`)
+- **Reviewer Partner Name:** Patita Dansikaew (Student ID: 67070505211, GitHub: [`Patitta-23`](https://github.com/Patitta-23))
+- **Partner Repository:** [`https://github.com/Patitta-23/LAB`](https://github.com/Patitta-23/LAB)
+
+#### 1.6.1 Peer Reviews Received (Patitta-23 ➔ nannaphatkn)
 
 | PR # | Target Branch | Issue / Scope | Reviewer (`Patitta-23`) Comment | Author (`nannaphatkn`) Reply & Action | Status |
 |------|---------------|---------------|---------------------------------|---------------------------------------|--------|
@@ -72,17 +81,29 @@ As recorded in [`docs/lab-03/reviewer.md`](https://github.com/nannaphatkn/toktic
 | **PR #33** | `lab3-staging` | **Issue #31:** Frontend Pages & Tests | *"Excellent"* | *"> Excellent\nwoww thanks for review"* | Merged ✅ |
 | **PR #36** | `main` | **Official Release:** Lab 03 | Review requested from `Patitta-23` on GitHub | Waiting for reviewer merge via GitHub UI | Open 🚀 |
 
-#### 1.5.2 Peer Reviews Conducted (nannaphatkn ➔ Patitta-23 / LAB)
+#### 1.6.2 Peer Reviews Conducted (nannaphatkn ➔ Patitta-23 / LAB)
 
 | PR # | Repository | Feature / Scope | My Review Decision (`nannaphatkn`) | Partner (`Patitta-23`) Reply | Status |
 |------|------------|-----------------|-----------------------------------|------------------------------|--------|
 | **PR #34** | `Patitta-23/LAB` | Lab-03 Spec DD Baseline | *"Lgtm"* (Approved ✅) | *"> Lgtm\nThanks"* | Merged ✅ |
 | **PR #35** | `Patitta-23/LAB` | Authentication System & RBAC | *"Greatest"* (Approved ✅) | *"> Greatest\nThanks"* | Merged ✅ |
-| **PR #36** | `Patitta-23/LAB` | IT Staff Queue & Detail | *"code looks good as you"* (Approved ✅) | *"> code looks good as you\nTq"* | Merged ✅ |
+| **PR #36** | `Patitta-23/LAB` | IT Staff Ticket Queue & Detail | *"code looks good as you"* (Approved ✅) | *"> code looks good as you\nTq"* | Merged ✅ |
 | **PR #37** | `Patitta-23/LAB` | Admin User Management | *"Approve khaa"* (Approved ✅) | *"> Approve khaa\nTq"* | Merged ✅ |
 | **PR #38** | `Patitta-23/LAB` | Requester Regression & Comments | *"Good good good"* (Approved ✅) | *"> Good good good\nThanks"* | Merged ✅ |
 
-### 1.6 Directory Structure & Hygiene
+#### 1.6.3 Reviewer Verification Checklist Summary
+
+- [x] **Spec DD:** Specification document complete at `docs/lab-03/specification.md` (FR-01..FR-15, BR-01..BR-20, Authorization Matrix)
+- [x] **UI Spec:** UI design system & state matrix at `docs/lab-03/ui-spec.md` with Zen Green palette (`#006B3C`)
+- [x] **API Spec:** REST API contracts documented at `docs/lab-03/api-spec.md`
+- [x] **Test DD & Traceability:** Full BR ➔ TC matrix at `docs/lab-03/tests.md`
+- [x] **Data Migration:** Prisma schema updated with `User`, `Role`, `PublicComment`, `InternalNote`, relations to `Ticket`, and composite index `@@index([role, isActive])` without breaking Lab 2 data
+- [x] **Auth & Authorization:** Server-side RBAC enforced for Requester, IT Staff, and Administrator
+- [x] **IT Staff Queue & Operations:** Search, filter, pagination, claim/reassign, IT priority, status workflow
+- [x] **Admin User Management:** CRUD operations with safety rules (no duplicate email, self-deactivation protection, last active admin protection)
+- [x] **Automated Tests:** Server API (71/71), Client Component (34/34), and Playwright E2E (19/19) passing clean
+
+### 1.7 Directory Structure & Hygiene
 - Clear separation between `client/`, `server/`, `docs/lab-03/`, and `e2e/lab-03/`.
 - Proper `.gitignore` preventing commit of node modules, build dist, `.env` secrets, and generated artifacts.
 
