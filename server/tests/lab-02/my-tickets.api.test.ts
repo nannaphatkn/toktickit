@@ -17,11 +17,11 @@ const requesterEmails = [
 
 beforeAll(async () => {
   const [requesterA, requesterB, categories, relatedSystem] = await Promise.all([
-    prisma.requesterUser.create({
-      data: { name: 'My Tickets Test Requester A', email: requesterEmails[0], isActive: true },
+    prisma.user.create({
+      data: { fullName: 'My Tickets Test Requester A', email: requesterEmails[0], isActive: true, passwordHash: 'test' },
     }),
-    prisma.requesterUser.create({
-      data: { name: 'My Tickets Test Requester B', email: requesterEmails[1], isActive: true },
+    prisma.user.create({
+      data: { fullName: 'My Tickets Test Requester B', email: requesterEmails[1], isActive: true, passwordHash: 'test' },
     }),
     prisma.category.findMany({ orderBy: { id: 'asc' }, take: 2 }),
     prisma.relatedSystem.findFirst({ orderBy: { id: 'asc' } }),
@@ -105,7 +105,7 @@ afterAll(async () => {
   if (ticketNumbers.length > 0) {
     await prisma.ticket.deleteMany({ where: { ticketNumber: { in: ticketNumbers } } });
   }
-  await prisma.requesterUser.deleteMany({ where: { email: { in: requesterEmails } } });
+  await prisma.user.deleteMany({ where: { email: { in: requesterEmails } } });
 });
 
 describe('GET /api/tickets — My Tickets', () => {
@@ -204,7 +204,7 @@ describe('GET /api/tickets — My Tickets', () => {
   it.each([
     ['page=0'],
     ['limit=51'],
-    ['requestedPriority=URGENT'],
+    ['requestedPriority=INVALID_PRIORITY'],
     ['currentStatus=UNKNOWN'],
     ['sortBy=requesterId'],
     ['sortDesc=maybe'],
