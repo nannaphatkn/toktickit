@@ -79,7 +79,7 @@ Full review details and verification records are documented in [`docs/lab-03/rev
 | **PR #29** | `lab3-staging` | **Issue #22:** Database Migration | *"มี index ที่ Ticket.requesterId, ownerId, currentStatus แล้ว แต่ User.role และ User.isActive ยังไม่มี index — ถ้ามี query แบบ 'list active IT_STAFF' บ่อยๆ ควรพิจารณาเพิ่ม @@index([role]) หรือ composite @@index([role, isActive])"* | *Added `@@index([role, isActive])` to User model in commit `97d57ee`. Verified all 51 tests pass.* | Merged ✅ |
 | **PR #32** | `lab3-staging` | **Issue #30:** Server APIs & RBAC | *"good job👏"* | *"> good job👏\nthanks khan"* | Merged ✅ |
 | **PR #33** | `lab3-staging` | **Issue #31:** Frontend Pages & Tests | *"Excellent"* | *"> Excellent\nwoww thanks for review"* | Merged ✅ |
-| **PR #36** | `main` | **Official Release:** Lab 03 | *"Goood"* (Approved ✅ at 2026-10-04T05:55:03Z) | *"> Goood\nthanks"* | Approved ✅ (Waiting for peer merge) |
+| **PR #36** | `main` | **Official Release:** Lab 03 | *"Goood"* (Approved ✅ at 2026-10-04T05:55:03Z) | *"> Goood\nthanks"* | Merged ✅ (Merged by `Patitta-23`) |
 
 
 #### 1.6.2 Peer Reviews Conducted (My Code Reviews on Patitta-23 / LAB)
