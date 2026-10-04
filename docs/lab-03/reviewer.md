@@ -54,8 +54,12 @@
 ### PR #36: `Release: Lab 03 — Authentication, RBAC, IT Staff & Admin`
 - **PR Link:** [https://github.com/nannaphatkn/toktickit/pull/36](https://github.com/nannaphatkn/toktickit/pull/36)
 - **Target Branch:** `main` ⟵ `lab3-staging`
-- **Status:** Open (Review Requested from `Patitta-23`)
-- **Scope:** Official Release PR consolidating 14 commits across specification, migration, backend APIs, frontend, test suites, and documentation.
+- **Status:** Merged ✅ (Merged by [`Patitta-23`](https://github.com/Patitta-23))
+- **Review Decision:** `APPROVED` (2026-10-04T05:55:03Z)
+- **Reviewer Comment:** *"Goood"* (by [`Patitta-23`](https://github.com/Patitta-23))
+- **Author Response:** *"> Goood\nthanks"* (by [`nannaphatkn`](https://github.com/nannaphatkn))
+- **Scope:** Official Release PR consolidating 15 commits across specification, migration, backend APIs, frontend, test suites, and documentation.
+
 
 ---
 
