@@ -1,6 +1,6 @@
 # Peer Reviewer Record — Lab 3: TokTickIT
 
-- **Student Name:** Janinee (`nannaphatkn`)
+- **Student Name:** Nannaphat Kaenphanao (`nannaphatkn`)
 - **Reviewer Partner Name:** Patita Dansikaew (Student ID: 67070505211, GitHub: [`Patitta-23`](https://github.com/Patitta-23))
 - **Repository:** [`https://github.com/nannaphatkn/toktickit`](https://github.com/nannaphatkn/toktickit)
 - **Integration Workflow:** Feature branches ➔ `lab3-staging` ➔ `main`

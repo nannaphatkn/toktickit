@@ -39,7 +39,7 @@ async function generatePDF() {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
         @page {
-          size: A4;
+          size: A4 portrait;
           margin: 18mm 15mm 18mm 15mm;
         }
 
@@ -206,6 +206,7 @@ async function generatePDF() {
   await page.pdf({
     path: pdfPath,
     format: 'A4',
+    landscape: false,
     margin: { top: '18mm', bottom: '18mm', left: '15mm', right: '15mm' },
     printBackground: true,
     displayHeaderFooter: true,
