@@ -109,12 +109,13 @@
 
 ## 3. Reviewer Verification Checklist Summary
 
-- [x] **Spec DD:** Specification document complete at `docs/lab-03/specification.md` (FR-01..FR-15, BR-01..BR-20, Authorization Matrix)
-- [x] **UI Spec:** UI design system & state matrix at `docs/lab-03/ui-spec.md` with Zen Green palette (`#006B3C`)
-- [x] **API Spec:** REST API contracts documented at `docs/lab-03/api-spec.md`
-- [x] **Test DD & Traceability:** Full BR ➔ TC matrix at `docs/lab-03/tests.md`
-- [x] **Data Migration:** Prisma schema updated with `User`, `Role`, `PublicComment`, `InternalNote`, relations to `Ticket`, and composite index `@@index([role, isActive])` without breaking Lab 2 data
-- [x] **Auth & Authorization:** Server-side RBAC enforced for Requester, IT Staff, and Administrator
-- [x] **IT Staff Queue & Operations:** Search, filter, pagination, claim/reassign, IT priority, status workflow
-- [x] **Admin User Management:** CRUD operations with safety rules (no duplicate email, self-deactivation protection, last active admin protection)
-- [x] **Automated Tests:** Server API (71/71), Client Component (34/34), and Playwright E2E (19/19) passing clean
+- **Spec DD:** Specification document complete at `docs/lab-03/specification.md` (FR-01..FR-15, BR-01..BR-20, Authorization Matrix).
+- **UI Spec:** UI design system & state matrix at `docs/lab-03/ui-spec.md` with Zen Green palette (`#006B3C`).
+- **API Spec:** REST API contracts documented at `docs/lab-03/api-spec.md`.
+- **Test DD & Traceability:** Full BR ➔ TC matrix at `docs/lab-03/tests.md`.
+- **Data Migration:** Prisma schema updated with `User`, `Role`, `PublicComment`, `InternalNote`, relations to `Ticket`, and composite index `@@index([role, isActive])` without breaking Lab 2 data.
+- **Auth & Authorization:** Server-side RBAC enforced for Requester, IT Staff, and Administrator.
+- **IT Staff Queue & Operations:** Search, filter, pagination, claim/reassign, IT priority, status workflow.
+- **Admin User Management:** CRUD operations with safety rules (no duplicate email, self-deactivation protection, last active admin protection).
+- **Automated Tests:** Server API (71/71), Client Component (34/34), and Playwright E2E (19/19) passing clean.
+
