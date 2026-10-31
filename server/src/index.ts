@@ -13,6 +13,8 @@ import authRoutes from './routes/authRoutes';
 import staffRoutes from './routes/staffRoutes';
 import commentsRoutes from './routes/commentsRoutes';
 import adminRoutes from './routes/adminRoutes';
+import actionsTakenRoutes from './routes/actionsTakenRoutes';
+import dashboardRoutes from './routes/dashboardRoutes';
 
 dotenv.config();
 
@@ -23,11 +25,11 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.send('TokTickIT API Server');
 });
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
     service: 'TokTickIT API',
@@ -38,9 +40,11 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/requesters', requesterRoutes);
 app.use('/api/related-systems', relatedSystemRoutes);
 app.use('/api/tickets', commentsRoutes); // Comments & Notes routes on /api/tickets/:id/...
+app.use('/api/tickets', actionsTakenRoutes); // Actions Taken & Status transitions on /api/tickets/:id/...
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/attachments', attachmentRoutes);
