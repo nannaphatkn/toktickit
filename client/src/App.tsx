@@ -12,6 +12,8 @@ import TicketDetail from './pages/TicketDetail';
 import { StaffQueue } from './pages/StaffQueue';
 import { StaffTicketDetail } from './pages/StaffTicketDetail';
 import { UserManagement } from './pages/UserManagement';
+import { StaffDashboard } from './pages/StaffDashboard';
+import { RequesterDashboard } from './pages/RequesterDashboard';
 import { RequesterProvider } from './contexts/RequesterContext';
 
 // Protected Route Guard
@@ -36,9 +38,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: strin
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     // Redirect based on role if forbidden
-    if (user.role === 'IT_STAFF') return <Navigate to="/staff/queue" replace />;
-    if (user.role === 'ADMINISTRATOR') return <Navigate to="/admin/users" replace />;
-    return <Navigate to="/my-tickets" replace />;
+    if (user.role === 'IT_STAFF' || user.role === 'ADMINISTRATOR') return <Navigate to="/staff/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
@@ -50,11 +51,8 @@ function HomeDashboard() {
 
   if (!user) return <Navigate to="/login" replace />;
 
-  if (user.role === 'IT_STAFF') {
-    return <Navigate to="/staff/queue" replace />;
-  }
-  if (user.role === 'ADMINISTRATOR') {
-    return <Navigate to="/admin/users" replace />;
+  if (user.role === 'IT_STAFF' || user.role === 'ADMINISTRATOR') {
+    return <Navigate to="/staff/dashboard" replace />;
   }
 
   return (
@@ -70,7 +68,16 @@ function HomeDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link
+            to="/dashboard"
+            className="bg-[#F0FAF5] hover:bg-emerald-100/60 border border-emerald-200/80 rounded-2xl p-6 transition-all text-center space-y-2 block"
+          >
+            <span className="text-3xl">📊</span>
+            <h3 className="font-bold text-[#006B3C] text-lg">My Dashboard</h3>
+            <p className="text-xs text-slate-600">Overview of ticket metrics and recent activity.</p>
+          </Link>
+
           <Link
             to="/create-ticket"
             className="bg-[#F0FAF5] hover:bg-emerald-100/60 border border-emerald-200/80 rounded-2xl p-6 transition-all text-center space-y-2 block"
@@ -117,6 +124,14 @@ function App() {
                 }
               />
               <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={['REQUESTER', 'ADMINISTRATOR']}>
+                    <RequesterDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/create-ticket"
                 element={
                   <ProtectedRoute allowedRoles={['REQUESTER', 'IT_STAFF', 'ADMINISTRATOR']}>
@@ -142,6 +157,14 @@ function App() {
               />
 
               {/* Protected IT Staff Routes */}
+              <Route
+                path="/staff/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={['IT_STAFF', 'ADMINISTRATOR']}>
+                    <StaffDashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/staff/queue"
                 element={

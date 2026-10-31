@@ -83,7 +83,11 @@ router.get('/tickets', async (req: Request, res: Response) => {
 
     // Status filter
     if (status && typeof status === 'string' && status !== 'ALL') {
-      where.currentStatus = status as TicketStatus;
+      if (status.includes(',')) {
+        where.currentStatus = { in: status.split(',').map((s) => s.trim() as TicketStatus) };
+      } else {
+        where.currentStatus = status as TicketStatus;
+      }
     }
 
     // IT Priority filter

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiFetch } from '../lib/api';
 
 interface Ticket {
@@ -30,15 +30,16 @@ export const StaffQueue: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters & Search state
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('ALL');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [priorityFilter, setPriorityFilter] = useState('ALL');
-  const [ownerFilter, setOwnerFilter] = useState('all');
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
-
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Filters & Search state initialized from URL params if present
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || 'ALL');
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'ALL');
+  const [priorityFilter, setPriorityFilter] = useState(searchParams.get('priority') || 'ALL');
+  const [ownerFilter, setOwnerFilter] = useState(searchParams.get('owner') || 'all');
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
 
   useEffect(() => {
     // Fetch categories for filter dropdown
@@ -176,6 +177,7 @@ export const StaffQueue: React.FC = () => {
               className="w-full rounded-lg border border-slate-300 p-2 text-xs text-slate-800 outline-none focus:border-[#006B3C]"
             >
               <option value="ALL">All Statuses</option>
+              <option value="OPEN,IN_PROGRESS">Open / In Progress</option>
               <option value="NEW">NEW</option>
               <option value="OPEN">OPEN</option>
               <option value="IN_PROGRESS">IN_PROGRESS</option>

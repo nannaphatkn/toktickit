@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { apiFetch } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { ActionsTakenSection, ActionTaken } from '../components/ActionsTakenSection';
 
 interface UserInfo {
   id: number;
@@ -33,9 +34,21 @@ interface TicketDetail {
   attachments: { id: number; originalName: string; fileType: string; fileSize: number }[];
   publicComments: CommentNote[];
   internalNotes: CommentNote[];
+  actionsTaken?: ActionTaken[];
   createdAt: string;
   updatedAt: string;
 }
+
+const ALLOWED_STAFF_TRANSITIONS: Record<string, string[]> = {
+  NEW: ['OPEN', 'IN_PROGRESS', 'CANCELLED'],
+  OPEN: ['IN_PROGRESS', 'WAITING_FOR_REQUESTER', 'CANCELLED'],
+  IN_PROGRESS: ['WAITING_FOR_REQUESTER', 'RESOLVED', 'CANCELLED'],
+  WAITING_FOR_REQUESTER: ['IN_PROGRESS', 'RESOLVED', 'CANCELLED'],
+  RESOLVED: ['CLOSED'],
+  CLOSED: [],
+  REOPENED: ['OPEN', 'IN_PROGRESS', 'CANCELLED'],
+  CANCELLED: [],
+};
 
 export const StaffTicketDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -132,18 +145,28 @@ export const StaffTicketDetail: React.FC = () => {
   };
 
   const handleStatusChange = async (newStatus: string) => {
-    if (!ticket) return;
+    if (!ticket || newStatus === ticket.currentStatus) return;
     try {
       const res = await apiFetch(`/staff/tickets/${ticket.id}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({
+          status: newStatus,
+          updatedAt: ticket.updatedAt,
+        }),
       });
-      if (res.ok) {
-        setSuccessMessage(`Status changed to ${newStatus.replace(/_/g, ' ')}.`);
-        fetchTicketDetail();
+
+      const data = await res.json();
+      if (res.status === 409) {
+        setError('This ticket was recently updated by another user. Please refresh and try again.');
+        return;
       }
-    } catch (err) {
-      setError('Failed to update ticket status.');
+      if (!res.ok) {
+        throw new Error(data.message || data.error || 'Failed to update ticket status.');
+      }
+      setSuccessMessage(`Status changed to ${newStatus.replace(/_/g, ' ')}.`);
+      fetchTicketDetail();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update ticket status.');
     }
   };
 
@@ -297,23 +320,27 @@ export const StaffTicketDetail: React.FC = () => {
               </select>
             </div>
 
-            {/* Status Workflow Selector */}
+            {/* Status Workflow Selector (only permitted next transitions from matrix) */}
             <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 p-2 rounded-xl">
               <span className="text-slate-500 font-semibold">Status:</span>
-              <select
-                value={ticket.currentStatus}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className="bg-white border border-slate-300 rounded-lg text-xs font-semibold p-1.5 outline-none focus:border-[#006B3C]"
-              >
-                <option value="NEW">NEW</option>
-                <option value="OPEN">OPEN</option>
-                <option value="IN_PROGRESS">IN_PROGRESS</option>
-                <option value="WAITING_FOR_REQUESTER">WAITING_FOR_REQUESTER</option>
-                <option value="RESOLVED">RESOLVED</option>
-                <option value="CLOSED">CLOSED</option>
-                <option value="REOPENED">REOPENED</option>
-                <option value="CANCELLED">CANCELLED</option>
-              </select>
+              {(() => {
+                const permittedNext = ALLOWED_STAFF_TRANSITIONS[ticket.currentStatus] || [];
+                return (
+                  <select
+                    value={ticket.currentStatus}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    disabled={permittedNext.length === 0}
+                    className="bg-white border border-slate-300 rounded-lg text-xs font-semibold p-1.5 outline-none focus:border-[#006B3C] disabled:bg-slate-100 disabled:text-slate-400"
+                  >
+                    <option value={ticket.currentStatus}>{ticket.currentStatus} (Current)</option>
+                    {permittedNext.map((st) => (
+                      <option key={st} value={st}>
+                        → {st}
+                      </option>
+                    ))}
+                  </select>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -369,6 +396,14 @@ export const StaffTicketDetail: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Actions Taken Section */}
+          <ActionsTakenSection
+            ticketId={ticket.id}
+            actions={ticket.actionsTaken || []}
+            readOnly={false}
+            onActionsUpdated={fetchTicketDetail}
+          />
         </div>
 
         {/* Right Column (1 col): Tabs for Public Comments & Internal Notes */}
