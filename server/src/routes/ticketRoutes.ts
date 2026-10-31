@@ -544,7 +544,7 @@ router.post('/', requireActiveRequester, handleUpload, async (req: Request, res:
       currentStatus: newTicket.currentStatus,
       createdAt: newTicket.createdAt
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Rollback uploaded files if transaction or processing fails
     await removeFiles(persistedFilePaths);
 
