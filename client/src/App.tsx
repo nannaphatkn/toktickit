@@ -38,8 +38,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: strin
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     // Redirect based on role if forbidden
-    if (user.role === 'IT_STAFF' || user.role === 'ADMINISTRATOR') return <Navigate to="/staff/dashboard" replace />;
-    return <Navigate to="/dashboard" replace />;
+    if (user.role === 'IT_STAFF') return <Navigate to="/staff/queue" replace />;
+    if (user.role === 'ADMINISTRATOR') return <Navigate to="/admin/users" replace />;
+    return <Navigate to="/my-tickets" replace />;
   }
 
   return <>{children}</>;
@@ -51,8 +52,11 @@ function HomeDashboard() {
 
   if (!user) return <Navigate to="/login" replace />;
 
-  if (user.role === 'IT_STAFF' || user.role === 'ADMINISTRATOR') {
-    return <Navigate to="/staff/dashboard" replace />;
+  if (user.role === 'IT_STAFF') {
+    return <Navigate to="/staff/queue" replace />;
+  }
+  if (user.role === 'ADMINISTRATOR') {
+    return <Navigate to="/admin/users" replace />;
   }
 
   return (
