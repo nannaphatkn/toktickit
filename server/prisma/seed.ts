@@ -112,7 +112,7 @@ const users = [
 ];
 
 async function main() {
-  console.log('Start seeding Lab 3 data...');
+  console.log('Start seeding Lab 4 data...');
 
   // 1. Seed Categories
   const categoryMap = new Map<string, number>();
@@ -305,7 +305,117 @@ async function main() {
     }
   }
 
-  console.log('Lab 3 Seeding finished successfully!');
+  console.log('Seeding Lab 4: ActionsTaken records...');
+
+  // Map ticket numbers to IDs for ActionTaken seeding
+  const ticketMap = new Map<string, number>();
+  for (const t of sampleTickets) {
+    const found = await prisma.ticket.findUnique({ where: { ticketNumber: t.ticketNumber } });
+    if (found) ticketMap.set(t.ticketNumber, found.id);
+  }
+
+  // ActionTaken seed data:
+  // - TKT-000001: 2 actions (multiple) by Michael and Lisa
+  // - TKT-000002: 1 action (single) by Lisa
+  // - TKT-000003: 0 actions (zero) — unassigned new ticket
+  // - TKT-000004: 1 action with followUpRequired=true by Michael
+  // - TKT-000005: 2 actions (resolved ticket) by Lisa
+  const actionsTakenSeed = [
+    // TKT-000001 — multiple actions
+    {
+      ticketNumber: 'TKT-2026-000001',
+      performedById: michaelId,
+      actionDateTime: new Date('2026-10-28T09:00:00Z'),
+      actionDescription: 'Ran battery diagnostic using powercfg /batteryreport. Battery health at 62%.',
+      result: 'Confirmed battery degradation. Replacement unit requested from inventory.',
+      followUpRequired: true,
+      followUpNote: 'Follow up when replacement battery arrives from warehouse (ETA 3 days).',
+      attachmentNotes: 'See battery_report_TKT001.html attached to ticket.',
+    },
+    {
+      ticketNumber: 'TKT-2026-000001',
+      performedById: lisaId,
+      actionDateTime: new Date('2026-10-29T14:30:00Z'),
+      actionDescription: 'Checked inventory. Replacement battery (model LP-E17) located in storage room B.',
+      result: 'Picked up replacement battery. Will schedule installation with requester.',
+      followUpRequired: false,
+      followUpNote: null,
+      attachmentNotes: null,
+    },
+    // TKT-000002 — single action
+    {
+      ticketNumber: 'TKT-2026-000002',
+      performedById: lisaId,
+      actionDateTime: new Date('2026-10-27T11:00:00Z'),
+      actionDescription: 'Reviewed RADIUS logs. VPN certificate for user expired on Sep 1st.',
+      result: 'Identified root cause. Preparing certificate auto-renewal policy for VPN group.',
+      followUpRequired: true,
+      followUpNote: 'Contact Sarah to confirm cert renewal completed and VPN connection restored.',
+      attachmentNotes: null,
+    },
+    // TKT-000004 — action with followUpRequired
+    {
+      ticketNumber: 'TKT-2026-000004',
+      performedById: michaelId,
+      actionDateTime: new Date('2026-10-26T10:00:00Z'),
+      actionDescription: 'Instructed requester to clear cached Exchange profile and reset Outlook profile.',
+      result: 'Waiting for requester to test and confirm fix. Ticket set to Waiting for Requester.',
+      followUpRequired: true,
+      followUpNote: 'If requester does not respond within 3 days, escalate to email server admin team.',
+      attachmentNotes: null,
+    },
+    // TKT-000005 — multiple actions (resolved ticket)
+    {
+      ticketNumber: 'TKT-2026-000005',
+      performedById: lisaId,
+      actionDateTime: new Date('2026-10-20T09:00:00Z'),
+      actionDescription: 'Reviewed ERP access request. Obtained manager approval from Finance dept.',
+      result: 'Manager approval confirmed via internal ticket #FIN-882.',
+      followUpRequired: false,
+      followUpNote: null,
+      attachmentNotes: 'Approval email screenshot: fin_approval_FIN882.png',
+    },
+    {
+      ticketNumber: 'TKT-2026-000005',
+      performedById: lisaId,
+      actionDateTime: new Date('2026-10-21T10:30:00Z'),
+      actionDescription: 'Provisioned ERP_FIN_AUDIT_READ role in Azure AD group for Emily Davis.',
+      result: 'Access confirmed active. Requester notified and ticket resolved.',
+      followUpRequired: false,
+      followUpNote: null,
+      attachmentNotes: null,
+    },
+  ];
+
+  for (const action of actionsTakenSeed) {
+    const ticketId = ticketMap.get(action.ticketNumber);
+    if (!ticketId) continue;
+
+    // Check idempotency: skip if this performer already has an action on this ticket at this datetime
+    const existing = await prisma.actionTaken.findFirst({
+      where: {
+        ticketId,
+        performedById: action.performedById,
+        actionDateTime: action.actionDateTime,
+      },
+    });
+    if (existing) continue;
+
+    await prisma.actionTaken.create({
+      data: {
+        ticketId,
+        performedById: action.performedById,
+        actionDateTime: action.actionDateTime,
+        actionDescription: action.actionDescription,
+        result: action.result,
+        followUpRequired: action.followUpRequired,
+        followUpNote: action.followUpNote,
+        attachmentNotes: action.attachmentNotes,
+      },
+    });
+  }
+
+  console.log('Lab 4 Seeding finished successfully!');
 }
 
 main()
