@@ -34,6 +34,34 @@ export default function Navbar() {
               {/* Role-Based Navigation Links */}
               {isAuthenticated && user && (
                 <div className="hidden md:flex items-center space-x-1">
+                  {/* Requester Dashboard */}
+                  {(user.role === 'REQUESTER' || user.role === 'ADMINISTRATOR') && (
+                    <NavLink
+                      to="/dashboard"
+                      className={({ isActive }) =>
+                        `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isActive ? 'bg-[#00542f] text-white shadow-inner' : 'text-emerald-100 hover:bg-[#00542f]/70'
+                        }`
+                      }
+                    >
+                      📊 Dashboard
+                    </NavLink>
+                  )}
+
+                  {/* IT Staff / Admin Dashboard */}
+                  {(user.role === 'IT_STAFF' || user.role === 'ADMINISTRATOR') && (
+                    <NavLink
+                      to="/staff/dashboard"
+                      className={({ isActive }) =>
+                        `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isActive ? 'bg-[#00542f] text-white shadow-inner' : 'text-emerald-100 hover:bg-[#00542f]/70'
+                        }`
+                      }
+                    >
+                      📈 Staff Ops
+                    </NavLink>
+                  )}
+
                   {(user.role === 'REQUESTER' || user.role === 'IT_STAFF' || user.role === 'ADMINISTRATOR') && (
                     <NavLink
                       to="/create-ticket"

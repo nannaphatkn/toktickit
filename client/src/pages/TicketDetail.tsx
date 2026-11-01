@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import RequesterPrompt from '../components/RequesterPrompt';
 import { useRequester } from '../contexts/requesterContextCore';
 import { apiFetch } from '../lib/api';
+import { ActionsTakenSection, ActionTaken } from '../components/ActionsTakenSection';
 
 import { StatusBadge, PriorityBadge, type Priority, type TicketStatus } from '../components/TicketBadges';
 import {
@@ -42,6 +43,7 @@ interface TicketDetailData {
     name: string;
   };
   attachments: TicketAttachment[];
+  actionsTaken?: ActionTaken[];
   createdAt: string;
   updatedAt: string;
 }
@@ -279,6 +281,32 @@ export default function TicketDetail() {
     }
   };
 
+  const handleRequesterStatusUpdate = async (targetStatus: string) => {
+    if (!ticket) return;
+    try {
+      const res = await apiFetch(`/tickets/${ticket.id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          status: targetStatus,
+          updatedAt: ticket.updatedAt,
+        }),
+      });
+      if (res.status === 409) {
+        alert('This ticket was recently updated by IT Staff. Please refresh.');
+        refresh();
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || data.error || 'Failed to update ticket status.');
+        return;
+      }
+      refresh();
+    } catch {
+      alert('Failed to update ticket status. Please try again.');
+    }
+  };
+
   if (!requester) {
     return (
       <RequesterPrompt
@@ -344,9 +372,34 @@ export default function TicketDetail() {
             <p className="section-kicker mb-1">Request information</p>
             <h2 id="ticket-information-heading" className="h4 mb-0">{ticket.summary}</h2>
           </div>
-          <div className="d-flex flex-wrap gap-2" aria-label="Ticket status and priority">
+          <div className="d-flex flex-wrap align-items-center gap-2" aria-label="Ticket status and priority">
             <StatusBadge status={ticket.currentStatus} />
             <PriorityBadge priority={ticket.requestedPriority} />
+
+            {/* Requester status workflow controls */}
+            {ticket.currentStatus === 'RESOLVED' && (
+              <button
+                type="button"
+                onClick={() => handleRequesterStatusUpdate('REOPENED')}
+                className="btn btn-outline-warning btn-sm fw-bold ms-2"
+              >
+                🔄 Reopen Ticket
+              </button>
+            )}
+
+            {['NEW', 'OPEN', 'WAITING_FOR_REQUESTER', 'REOPENED'].includes(ticket.currentStatus) && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to cancel this ticket request?')) {
+                    handleRequesterStatusUpdate('CANCELLED');
+                  }
+                }}
+                className="btn btn-outline-danger btn-sm ms-2"
+              >
+                ✕ Cancel Ticket
+              </button>
+            )}
           </div>
         </div>
 
@@ -451,6 +504,16 @@ export default function TicketDetail() {
             </article>
           ))}
         </div>
+      </section>
+
+      {/* Lab 04: Actions Taken Section (Read-only for Requester) */}
+      <section className="mb-4">
+        <ActionsTakenSection
+          ticketId={ticket.id}
+          actions={ticket.actionsTaken || []}
+          readOnly={true}
+          onActionsUpdated={refresh}
+        />
       </section>
 
       {removalTarget && (
