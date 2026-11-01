@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Priority, TicketStatus, Role, Prisma } from '@prisma/client';
 import { prisma } from '../prisma';
 import { authenticateUser, requirePasswordChanged, requireRole } from '../middleware/authMiddleware';
+import { STATUS_TRANSITIONS } from './actionsTakenRoutes';
 
 const router = Router();
 
@@ -176,6 +177,10 @@ router.get('/tickets/:id', async (req: Request, res: Response) => {
           include: { author: { select: { id: true, fullName: true, role: true } } },
           orderBy: { createdAt: 'asc' },
         },
+        actionsTaken: {
+          include: { performedBy: { select: { id: true, fullName: true, role: true } } },
+          orderBy: { actionDateTime: 'desc' },
+        },
       },
     });
 
@@ -295,7 +300,7 @@ router.patch('/tickets/:id/status', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Invalid ticket ID.' });
   }
 
-  const { status } = req.body;
+  const { status, updatedAt: clientUpdatedAt } = req.body;
   if (!status || !Object.values(TicketStatus).includes(status)) {
     return res.status(400).json({ error: 'Valid status is required.' });
   }
@@ -304,6 +309,28 @@ router.patch('/tickets/:id/status', async (req: Request, res: Response) => {
     const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
     if (!ticket) {
       return res.status(404).json({ error: 'Ticket not found.' });
+    }
+
+    if (clientUpdatedAt) {
+      const dbUpdatedAt = new Date(ticket.updatedAt).toISOString();
+      const clientStr = new Date(clientUpdatedAt).toISOString();
+      if (dbUpdatedAt !== clientStr) {
+        return res.status(409).json({
+          error: 'Conflict',
+          message: 'This ticket was recently updated. Please refresh and try again.',
+        });
+      }
+    }
+
+    const currentStatus = ticket.currentStatus;
+    const userRole = req.user!.role;
+    const allowedTransitions = STATUS_TRANSITIONS[currentStatus]?.[userRole] ?? [];
+
+    if (!allowedTransitions.includes(status as TicketStatus)) {
+      return res.status(400).json({
+        error: 'InvalidStatusTransition',
+        message: `Cannot transition from ${currentStatus} to ${status}.`,
+      });
     }
 
     const updatedTicket = await prisma.ticket.update({
