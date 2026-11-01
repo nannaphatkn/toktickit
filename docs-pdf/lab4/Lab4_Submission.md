@@ -3,11 +3,11 @@
 
 **Course:** CPE 334 Introduction to Software Engineering in the Age of AI Agents (Semester 1/2026)  
 **Total Points:** 60 Points  
-**Student Name:** Nannaphat Kaenphanao (`nannaphatkn`)  
-**Reviewer Partner Name:** Patita Dansikaew (Student ID: 67070505211, GitHub: [`Patitta-23`](https://github.com/Patitta-23))  
+**Student Name:** Nannaphat Kaenphanao (Student ID: 67070505219, GitHub: [`nannaphatkn`](https://github.com/nannaphatkn))  
+**Reviewer Partner Name:** Patita Dansikaew (Student ID: 670705052116, GitHub: [`Patitta-23`](https://github.com/Patitta-23))  
 **Repository:** [https://github.com/nannaphatkn/toktickit](https://github.com/nannaphatkn/toktickit)  
 **Integration Workflow:** Feature branches ➔ `lab4-staging` ➔ `main`  
-**Release Pull Requests:** [PR #42](https://github.com/nannaphatkn/toktickit/pull/42), [PR #43](https://github.com/nannaphatkn/toktickit/pull/43), [PR #44](https://github.com/nannaphatkn/toktickit/pull/44), [PR #45](https://github.com/nannaphatkn/toktickit/pull/45), [PR #46](https://github.com/nannaphatkn/toktickit/pull/46) — **Status: All MERGED ✅ (Merged by `Patitta-23`)**
+**Release Pull Requests:** [PR #42](https://github.com/nannaphatkn/toktickit/pull/42), [PR #43](https://github.com/nannaphatkn/toktickit/pull/43), [PR #44](https://github.com/nannaphatkn/toktickit/pull/44), [PR #45](https://github.com/nannaphatkn/toktickit/pull/45), [PR #46](https://github.com/nannaphatkn/toktickit/pull/46) — **Status: All MERGED  (Merged by `Patitta-23`)**
 
 ---
 
@@ -22,7 +22,7 @@ Key product increments delivered:
    - **IT Staff Dashboard:** Real-time metrics (Unassigned count, My Assigned count, Open/In Progress count, Urgent Priority count), status distribution breakdown, recently updated tickets, and direct drill-down links to filtered queue views.
    - **Requester Dashboard:** Scoped strictly to the authenticated user's tickets (Open tickets, Waiting for You, Recently Updated, Recently Resolved) with drill-down to My Tickets.
 4. **Optimistic Concurrency & Safe Failure:** `updatedAt`-based stale update detection returning HTTP `409 Conflict` when concurrent modifications collide, protecting data integrity.
-5. **Spec-Driven & Test-Driven Quality:** 100% automated test pass rate across Server API (25/25), Client Component UI (40/40), and Playwright End-to-End (6/6).
+5. **Spec-Driven & Test-Driven Quality:** 100% automated test pass rate across Server API (25/25), Client Component UI (42/42), and Playwright End-to-End (6/6).
 
 ---
 
@@ -121,7 +121,8 @@ toktickit/
 │       └── pages/__tests__/
 │           ├── ActionsTaken.test.tsx
 │           ├── StaffDashboard.test.tsx
-│           └── RequesterDashboard.test.tsx
+│           ├── RequesterDashboard.test.tsx
+│           └── TicketWorkflow.test.tsx
 └── e2e/lab-04/
     ├── actions-taken-flow.spec.ts
     ├── dashboards.spec.ts
@@ -195,7 +196,7 @@ All specification contracts are located under [`docs/lab-04/`](https://github.co
 
 ### 3.2 Automated Test Execution Summary
 - **Server API Tests:** 25/25 passing across 4 test suites (`actions-taken.api.test.ts`, `ticket-workflow.api.test.ts`, `staff-dashboard.api.test.ts`, `requester-dashboard.api.test.ts`).
-- **Client Component Tests:** 40/40 passing across 11 test suites (`ActionsTaken.test.tsx`, `StaffDashboard.test.tsx`, `RequesterDashboard.test.tsx`, etc.).
+- **Client Component Tests:** 42/42 passing across 12 test suites (`ActionsTaken.test.tsx`, `StaffDashboard.test.tsx`, `RequesterDashboard.test.tsx`, `TicketWorkflow.test.tsx`, etc.).
 - **Playwright E2E Tests:** 6/6 passing cleanly across 3 E2E test suites (`actions-taken-flow.spec.ts`, `dashboards.spec.ts`, `ticket-resolution.spec.ts`).
 
 ---
