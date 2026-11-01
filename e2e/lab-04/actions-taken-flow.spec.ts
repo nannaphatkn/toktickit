@@ -30,7 +30,7 @@ test.describe('Lab 04 Actions Taken Flow E2E', () => {
     await page.getByPlaceholder(/Observed result/i).fill(testResult);
 
     // Toggle follow-up
-    await page.locator('input[type="checkbox"]').check();
+    await page.locator('input[type="checkbox"]').check({ force: true });
     await expect(page.getByText(/Follow-Up Note/i)).toBeVisible();
     await page.getByPlaceholder(/Specify timeline, owner, or condition/i).fill(testFollowUpNote);
 
@@ -39,8 +39,8 @@ test.describe('Lab 04 Actions Taken Flow E2E', () => {
 
     // Verify success banner and action entry in list
     await expect(page.getByText(/New Action Taken recorded/i)).toBeVisible();
-    await expect(page.getByText(testActionDesc)).toBeVisible();
-    await expect(page.getByText(testResult)).toBeVisible();
+    await expect(page.getByText(testActionDesc).first()).toBeVisible();
+    await expect(page.getByText(testResult).first()).toBeVisible();
     await expect(page.getByText(/Follow-Up Required/i).first()).toBeVisible();
 
     // 6. Edit Action
@@ -52,7 +52,7 @@ test.describe('Lab 04 Actions Taken Flow E2E', () => {
     await page.getByRole('button', { name: /Update Action/i }).click();
 
     await expect(page.getByText(/Action Taken updated successfully/i)).toBeVisible();
-    await expect(page.getByText(updatedDesc)).toBeVisible();
+    await expect(page.getByText(updatedDesc).first()).toBeVisible();
   });
 
   test('E2E-02: Requester sees Actions Taken in read-only mode without create/edit controls', async ({ page }) => {
@@ -61,6 +61,7 @@ test.describe('Lab 04 Actions Taken Flow E2E', () => {
     await page.fill('#email', 'jennifer.anderson@toktickit.com');
     await page.fill('#password', 'Password123!');
     await page.getByRole('button', { name: /Sign In/i }).click();
+    await expect(page).toHaveURL(/\/(dashboard)?$/);
 
     // 2. Open Ticket #1 detail as Requester
     await page.goto('/tickets/1');

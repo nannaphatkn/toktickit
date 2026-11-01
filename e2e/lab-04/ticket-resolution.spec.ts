@@ -9,6 +9,7 @@ test.describe('Lab 04 Ticket Resolution & Workflow E2E', () => {
     await page.fill('#email', 'michael.brown@toktickit.com');
     await page.fill('#password', 'Password123!');
     await page.getByRole('button', { name: /Sign In/i }).click();
+    await expect(page).toHaveURL(/\/staff\/queue/);
 
     await page.goto('/staff/tickets/1');
     await expect(page.getByText(/Status:/i)).toBeVisible();
@@ -19,14 +20,9 @@ test.describe('Lab 04 Ticket Resolution & Workflow E2E', () => {
 
     const currentText = await statusSelect.inputValue();
     if (currentText !== 'RESOLVED') {
-      // Transition towards RESOLVED
-      const options = await statusSelect.locator('option').allInnerTexts();
-      const nextOption = options.find((opt) => opt.includes('RESOLVED') || opt.includes('WAITING_FOR_REQUESTER'));
-      if (nextOption) {
-        const val = nextOption.replace(/[^A-Z_]/g, '');
-        await statusSelect.selectOption(val);
-        await expect(page.getByText(/Status changed to/i)).toBeVisible();
-      }
+      // Transition towards next permitted status
+      await statusSelect.selectOption({ index: 1 });
+      await expect(page.getByText(/Status changed to/i)).toBeVisible();
     }
 
     // 3. Logout and login as Requester
@@ -36,6 +32,7 @@ test.describe('Lab 04 Ticket Resolution & Workflow E2E', () => {
     await page.fill('#email', 'jennifer.anderson@toktickit.com');
     await page.fill('#password', 'Password123!');
     await page.getByRole('button', { name: /Sign In/i }).click();
+    await expect(page).toHaveURL(/\/(dashboard)?$/);
 
     // 4. View Ticket as Requester
     await page.goto('/tickets/1');

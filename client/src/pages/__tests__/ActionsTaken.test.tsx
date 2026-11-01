@@ -1,5 +1,5 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ActionsTakenSection, ActionTaken } from '../../components/ActionsTakenSection';
+import { render, screen } from '@testing-library/react';
+import { ActionsTakenSection, type ActionTaken } from '../../components/ActionsTakenSection';
 import { AuthProvider } from '../../context/AuthContext';
 import { describe, it, expect, vi } from 'vitest';
 

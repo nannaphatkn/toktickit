@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import RequesterPrompt from '../components/RequesterPrompt';
 import { useRequester } from '../contexts/requesterContextCore';
 import { apiFetch } from '../lib/api';
-import { ActionsTakenSection, ActionTaken } from '../components/ActionsTakenSection';
+import { ActionsTakenSection, type ActionTaken } from '../components/ActionsTakenSection';
 
 import { StatusBadge, PriorityBadge, type Priority, type TicketStatus } from '../components/TicketBadges';
 import {
