@@ -54,6 +54,27 @@
 > "เดี๋ยวก่อนสร้างตาม criteria แต่ห้าม merge หรืออะไรเองเด็ดขาด ทำได้แต่สร้าง branch, issue, kanban"
 - **AI Output:** Strictly followed the no-self-merge policy. Created 5 feature branches (`feature/lab4-spec-dd`, `feature/lab4-database-migration`, `feature/lab4-server-api`, `feature/lab4-frontend-ui`, `feature/lab4-e2e-regression`), pushed all to GitHub, created 5 corresponding GitHub Issues (#37–#41). All PRs must be reviewed and merged by peer reviewer `Patitta-23` — no self-merging allowed.
 
+### Prompt 8: Automated Pull Request Creation & Reviewer Assignment
+> "สร้าง Pull Request ทั้ง 5 ตัวเข้า lab4-staging ให้อัตโนมัติ (พร้อม assign Patitta-23 เป็น reviewer)"
+- **AI Output:** Pushed `lab4-staging` branch to GitHub (it only existed locally). Then created 5 Pull Requests via `gh pr create` with structured titles, descriptions containing `Closes #<issue>`, and `--reviewer Patitta-23` flag:
+  - PR #42: Issue #37 — Specification & Engineering Concept Documents
+  - PR #43: Issue #38 — Database Migration & Seed Data for Actions Taken
+  - PR #44: Issue #39 — Server REST APIs & Integration Tests
+  - PR #45: Issue #40 — Frontend UI Pages & Components
+  - PR #46: Issue #41 — E2E Tests, Regression Verification & Documentation
+
+### Prompt 9: TypeScript Error Resolution & Code Quality
+> "error อะไร / นี่ด้วย" (Pointing at TypeScript errors in IDE)
+- **AI Output:** Identified `catch (error: any)` pattern in `ticketRoutes.ts` flagged by TypeScript strict mode. Replaced with `catch (error: unknown)` across all route files. Ran `tsc --noEmit` to verify zero TypeScript errors across both server and client codebases. Committed and pushed the fix to the E2E regression branch.
+
+### Prompt 10: Cross-Repository Peer Review for Partner (Patitta-23)
+> "รีวิวของเพื่อนให้หน่อย" + "peer review" (for Patitta-23/LAB PRs #41, #44, #45)
+- **AI Output:** Fetched and analyzed 3 of Patitta-23's Lab 4 PRs via GitHub API:
+  - **PR #41** (Spec DD): Reviewed 6 documentation files (specification.md, api-spec.md, ui-spec.md, tests.md, reviewer.md, ai-use.md) — verified completeness of BR-01..BR-14, FR-01..FR-10, AC-01..AC-14, Role Matrix, and State Machine.
+  - **PR #44** (Claim & Reassign): Reviewed `itStaffRoutes.ts` changes — validated `requireRole("IT_Staff")` guard, `assigneeId` validation, auto `IN_PROGRESS` transition on claim, and 13 comprehensive tests.
+  - **PR #45** (Status & Priority): Reviewed state machine implementation — validated `VALID_TRANSITIONS` map, dedicated `/status` and `/priority` endpoints, RBAC enforcement (Admin blocked from status change per AC-06), and 23 tests covering all transitions.
+  - Generated structured review comments with strengths analysis and minor improvement suggestions for each PR.
+
 ## 3. Reflection & Lessons Learned
 
 1. **Spec-Driven Development Continuity:**  
